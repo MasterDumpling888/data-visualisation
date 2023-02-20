@@ -1,16 +1,13 @@
 function ClimateChange() {
 
   // Name for the visualisation to appear in the menu bar.
-  this.name = 'Climate Change';
+  this.name = 'Animated Bar Chart of Top Brands 2001 to 2019';
 
   // Each visualisation must have a unique ID with no special
   // characters.
-  this.id = 'climate-change';
+  this.id = 'top-brands';
 
   // Names for each axis.
-  this.xAxisLabel = 'year';
-  this.yAxisLabel = '°C';
-
   let marginSize = 35;
 
   // Layout object to store all common plot layout parameters and
@@ -51,7 +48,7 @@ function ClimateChange() {
   this.preload = function() {
     var self = this;
     this.data = loadTable(
-      './data/surface-temperature/surface-temperature.csv', 'csv', 'header',
+      './data/choropleth/population_1960_2021.csv', 'csv', 'header',
       // Callback function to set the value
       // this.loaded to true.
       function(table) {
@@ -81,22 +78,15 @@ function ClimateChange() {
 
     // Create sliders to control start and end years. Default to
     // visualise full range.
-    this.startSlider = createSlider(this.minYear,
+    this.slider = createSlider(this.minYear,
                                     this.maxYear - 1,
                                     this.minYear,
                                     1);
-    this.startSlider.position(width, height/4.5);
-
-    this.endSlider = createSlider(this.minYear + 1,
-                                  this.maxYear,
-                                  this.maxYear,
-                                  1);
-    this.endSlider.position(width/2, height/4.5);
+    this.slider.position(width, height/4.5);
   };
 
   this.destroy = function() {
-    this.startSlider.remove();
-    this.endSlider.remove();
+    this.slider.remove();
   };
 
   this.draw = function() {

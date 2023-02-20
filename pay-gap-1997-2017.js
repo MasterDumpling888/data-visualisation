@@ -121,7 +121,7 @@ function PayGapTimeSeries() {
       if (previous != null) {
         // Draw line segment connecting previous year to current
         // year pay gap.
-        console.log(this.mapPayGapToHeight(previous.payGap))
+        // console.log(this.mapPayGapToHeight(previous.payGap))
         stroke(0);
         line(this.mapYearToWidth(previous.year),this.mapPayGapToHeight(previous.payGap), this.mapYearToWidth(current.year), this.mapPayGapToHeight(current.payGap));
 

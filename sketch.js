@@ -3,10 +3,20 @@
 // a container for all the visualisations.
 var gallery;
 
+// preloads font
+function preload (){
+  font = loadFont('./assets/AvenirLTStd-Roman.otf');
+};
+
 function setup() {
+  //set font for all graphs
+  textFont('Andale Mono')
+
   // Create a canvas to fill the content div from index.html.
-  var c = createCanvas(1024, 576);
+  let c = createCanvas(1024, 576);
+  c.position(400, 125)
   c.parent('app');
+
 
   // Create a new gallery object.
   gallery = new Gallery();
@@ -17,6 +27,11 @@ function setup() {
   gallery.addVisual(new PayGapByJob2017());
   gallery.addVisual(new PayGapTimeSeries());
   gallery.addVisual(new ClimateChange());
+  gallery.addVisual(new InternetUserCountryPop());
+  gallery.addVisual(new FoodInflation2021());
+  // gallery.addVisual(new Choropleth());
+  gallery.addVisual(new Map());
+  gallery.addVisual(new LineGraph3D());
 }
 
 function draw() {

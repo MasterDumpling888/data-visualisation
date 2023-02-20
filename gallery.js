@@ -49,6 +49,8 @@ function Gallery() {
         for(var i = 0; i < menuItems.length; i++)
         {
             menuItems[i].removeClass('selected');
+            
+            // makeCanvas(false, P2D)
         }
         
         var el = select('#' + e.srcElement.id);
@@ -64,6 +66,7 @@ function Gallery() {
 
     // Preload data if necessary.
     if (vis.hasOwnProperty('preload')) {
+      // makeCanvas(false, P2D)
       vis.preload();
     }
   };

@@ -1,23 +1,47 @@
-body{
-    font-family: sans-serif
+body {
+    font-family: 'Andale Mono';
+    font-weight: 400;
+    background-color: #d2e5f9;
+    margin: 0px;
+}
+
+.header {
+    color: rgb(23, 48, 69);
+    position: -webkit-sticky;
+    width: auto;
+    /* border: 2px solid #566D9B; */
+    margin-left: 30px;
+    padding: 10px;
+    text-align: left;
 }
 
 .menu-item {
-    width: 250px;
-    height: 50px;
-    border: 1px solid gray;
+    color: aliceblue;
+    background: rgb(23, 48, 69);
+    position: relative;
+    left: 0px;
+    top: 0px;
+    width: 300px;
+    height: 60px;
+    line-height: 60px;
+    /* border: 2px solid #566D9B; */
+    border-radius: 100px;
     list-style-type: none;
     padding: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+    vertical-align: middle;
 }
 
 .container {
-  display: flex;
+    display: flex;
 }
 
 .hover {
-    background: lightgray
+    background: rgb(48, 120, 183);
 }
 
-.selected{
-    background: gold
+.selected {
+    background: #FDFFD6;
+    color: rgb(23, 48, 69);
 }
