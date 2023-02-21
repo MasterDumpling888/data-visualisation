@@ -59,7 +59,6 @@ function InternetUserCountryPop() {
 
   this.setup = function () {
     //font settings
-    
     textSize(16);
     textAlign(CENTER);
 
@@ -80,13 +79,30 @@ function InternetUserCountryPop() {
 
     // Create color picker for graph fill: referenced from P5 reference page (search string: createColorPicker)
     //set default colour to #a8dadc
-    this.colorPicker = createColorPicker('#6179ee');
+    this.colorPicker = createColorPicker(color(97, 121, 238));
 
     // Set the color picker position
-    this.colorPicker.position(width/2.3, height/4)
+    this.colorPicker.position(width/2.3, height/4);
+
+    // this.gridButton = createCheckbox('Grid',this.layout.grid);
+    // this.gridButton.changed(check());
+    // function check(){
+    //   if(this.gridButton.checked()){
+    //     this.layout.grid = true;
+    //   }  else {
+    //     this.layout.grid = false;
+    //   }
+    // }
+    // this.gridButton.position(width/2, height/4)
+
     // Find min and max percentage
     this.minPercent = 0;
     this.maxPercent = 100;
+
+    //Set controlled frame count
+    this.frameCount = 0;
+    //Set frame rate
+    this.frameRate = 0.3;
   };
 
   this.destroy = function () {
@@ -94,6 +110,7 @@ function InternetUserCountryPop() {
     this.colorPicker.remove();
   };
 
+  this.play = false;
   this.draw = function () {
     //checks if data is loaded and if not alerts
     if (!this.loaded) {
@@ -101,7 +118,7 @@ function InternetUserCountryPop() {
       return;
     }
 
-    //draw y axis  labels
+    //draw y axis labels
     drawYAxisTickLabels(this.minPercent,
       this.maxPercent,
       this.layout,
@@ -119,6 +136,8 @@ function InternetUserCountryPop() {
     //declare variables for plotting line between start and end year
     let previous;
     let numYears = this.endYear - this.startYear;
+
+    let yearCount = 0;
 
     //Converts strings in selected data's column to numbers
     let value = stringsToNumbers(this.data.getColumn(this.select.value()));
@@ -149,11 +168,13 @@ function InternetUserCountryPop() {
 
         // Declare variable for colour from color picker
         let c = this.colorPicker.color()
-        stroke(c)//put stroke to remove line gaps between vertex points
-        fill(c); // fills vertex with colour from colorPicker
-
-        // Draws shape from previous year to current year then connects to bottom margin to close shape
+        let inv_c = invertColor(c)
         
+        // Draws shape from previous year to current year then connects to bottom margin to close shape
+        this.drawBars(previous, numYears, c, inv_c);
+        this.drawPoints(previous);
+        
+        stroke(0)//put stroke to remove line gaps between vertex points
         beginShape();
         vertex(this.mapYearToWidth(previous.year),
           this.mapValueToHeight(previous.value));
@@ -161,29 +182,61 @@ function InternetUserCountryPop() {
           this.mapValueToHeight(current.value));
         endShape();
         
-        this.drawPoints(previous);
-
         
        
         //Draw point for final year
         if (current.year == this.endYear) {
+          // this.drawBars(current, numYears, c, inv_c);
           this.drawPoints(current);
         };
+        
+        yearCount++;
       };
 
+      
+      // Stop drawing this frame when the number of years drawn is
+      // equal to the frame count. This creates the animated effect
+      // over successive frames.
+      if(yearCount >= this.frameCount){
+        break;
+      }
       // Assign current year to previous year so that it is available
       // during the next iteration of this loop to give us the start
       // position of the next line segment.
       previous = current;
     };
+
+    //Count the numbers of times the draw loops
+    this.frameCount = this.frameCount + this.frameRate;
     
+  };
+  this.drawBars = function(yr, numYr, colour, invColour){
+    noStroke();
+    let y = this.layout.bottomMargin;
+
+    let growth_rate = 5;
+    let grow = this.frameCount * growth_rate;
+
+    let current_y = y - grow;
+    let cons_y = constrain(current_y, this.mapValueToHeight(yr.value), y);
+
+    let gap = 5;
+    let w = (this.layout.plotWidth()/numYr) - gap
+    let height = this.layout.bottomMargin - cons_y;
+
+    
+    let grad = lerpColor(invColour, colour, yr.value/100);
+
+
+    fill(grad)
+    rect(this.mapYearToWidth(yr.year), cons_y, w, height)
   };
 
   this.drawPoints = function(yr){
     //Draws accessible points
     //Point settings
     noStroke();
-    fill('#1D2447');
+    fill(0);
     let pSize = 10;//Default diameter of points
 
     //Checks is mouse is on previous point then inflates point & create text
@@ -210,4 +263,13 @@ function InternetUserCountryPop() {
       this.layout.bottomMargin,   // Draw top-to-bottom from margin.
       this.layout.topMargin);
   };
+
+  this.mapValueToColour = function(value, minColour, maxColour){
+    return map(value, 
+      this.minPercent,
+      this.maxPercent,
+      minColour,
+      maxColour);
+
+  }
 }

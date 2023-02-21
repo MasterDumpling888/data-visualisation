@@ -49,8 +49,6 @@ function Gallery() {
         for(var i = 0; i < menuItems.length; i++)
         {
             menuItems[i].removeClass('selected');
-            
-            // makeCanvas(false, P2D)
         }
         
         var el = select('#' + e.srcElement.id);

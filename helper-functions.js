@@ -128,3 +128,13 @@ function drawXAxisTickLabel(value, layout, mapFunction) {
          layout.bottomMargin);
   }
 }
+/**reference:
+ * inverse color function by benmoren (https://editor.p5js.org/benmoren/sketches/wpWhJ-22g)
+ */
+function invertColor(colour){
+  r = 255 - red(colour);
+  g = 255 - green(colour);
+  b = 255 - blue(colour);
+
+  return color(r,g,b);
+}
