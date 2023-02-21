@@ -1,7 +1,7 @@
-function ClimateChange() {
+function BarChart() {
 
   // Name for the visualisation to appear in the menu bar.
-  this.name = 'Animated Bar Chart of Top Brands 2001 to 2019';
+  this.name = 'Animated Bar Chart of Top Brands 2000 to 2019';
 
   // Each visualisation must have a unique ID with no special
   // characters.
@@ -48,7 +48,7 @@ function ClimateChange() {
   this.preload = function() {
     var self = this;
     this.data = loadTable(
-      './data/choropleth/population_1960_2021.csv', 'csv', 'header',
+      './data/choropleth/top-brands.csv', 'csv', 'header',
       // Callback function to set the value
       // this.loaded to true.
       function(table) {
@@ -62,15 +62,8 @@ function ClimateChange() {
     textAlign('center', 'center');
 
     // Set min and max years: assumes data is sorted by year.
-    this.minYear = this.data.getNum(0, 'year');
-    this.maxYear = this.data.getNum(this.data.getRowCount() - 1, 'year');
-
-    // Find min and max temperature for mapping to canvas height.
-    this.minTemperature = min(this.data.getColumn('temperature'));
-    this.maxTemperature = max(this.data.getColumn('temperature'));
-
-    // Find mean temperature to plot average marker.
-    this.meanTemperature = mean(this.data.getColumn('temperature'));
+    this.minYear = min(this.data.getRow(1));
+    this.maxYear = max(this.data.getRow(1));
 
     // Count the number of frames drawn since the visualisation
     // started so that we can animate the plot.
@@ -82,7 +75,7 @@ function ClimateChange() {
                                     this.maxYear - 1,
                                     this.minYear,
                                     1);
-    this.slider.position(width, height/4.5);
+    this.slider.position(width, height - 30);
   };
 
   this.destroy = function() {
