@@ -1,6 +1,7 @@
 /* reference: // mostly built upon the standard structure of template //
   * PayGap 1997-2017(from template)
   * P5 reference page
+  * Coding Train: Checkbox Ideas https://gist.github.com/shiffman/7549e5225c042ee25a80
  */
 function InternetUserCountryPop() {
   //name for visualisation
@@ -33,8 +34,13 @@ function InternetUserCountryPop() {
       return this.bottomMargin - this.topMargin;
     },
 
+    checkEvent: function(){
+      if(this.checked()){
+      } 
+    },
     //on/off grid
     grid: false,
+
 
     //number of tick labels above/beside the base tick
     numXTickLabels: 10,
@@ -57,10 +63,14 @@ function InternetUserCountryPop() {
       });
   };
 
+  // let gridButton;
   this.setup = function () {
     //font settings
     textSize(16);
     textAlign(CENTER);
+
+    //set rect mode
+    rectMode(CORNER)
 
     // Set min and max years: assumes data is sorted by year
     this.startYear = this.data.getNum(0, 'year');
@@ -78,23 +88,19 @@ function InternetUserCountryPop() {
     }
 
     // Create color picker for graph fill: referenced from P5 reference page (search string: createColorPicker)
-    //set default colour to #a8dadc
-    this.colorPicker = createColorPicker(color(97, 121, 238));
+    //set default colour to 60, 236, 177
+    this.colorPicker = createColorPicker(color(60, 236, 177));
 
     // Set the color picker position
     this.colorPicker.position(width/2.3, height/4);
 
-    // this.gridButton = createCheckbox('Grid',this.layout.grid);
-    // this.gridButton.changed(check());
-    // function check(){
-    //   if(this.gridButton.checked()){
-    //     this.layout.grid = true;
-    //   }  else {
-    //     this.layout.grid = false;
-    //   }
-    // }
-    // this.gridButton.position(width/2, height/4)
-
+    // Create checkbox for the grid of graph
+    this.gridButton = createCheckbox('Grid',this.layout.grid);
+    this.gridButton.changed(this.layout.checkEvent);
+    
+    //Set position of checkbox
+    this.gridButton.position(width, height/4)
+   
     // Find min and max percentage
     this.minPercent = 0;
     this.maxPercent = 100;
@@ -104,18 +110,27 @@ function InternetUserCountryPop() {
     //Set frame rate
     this.frameRate = 0.3;
   };
+  
+
 
   this.destroy = function () {
     this.select.remove();
     this.colorPicker.remove();
+    this.gridButton.remove();
   };
 
-  this.play = false;
   this.draw = function () {
     //checks if data is loaded and if not alerts
     if (!this.loaded) {
       alert("Data hasn't loaded!");
       return;
+    }
+    
+    //checks grid //Coding Train
+    if(this.gridButton.checked()){
+      this.layout.grid = true;
+    } else {
+      this.layout.grid = false;
     }
 
     //draw y axis labels
@@ -137,6 +152,7 @@ function InternetUserCountryPop() {
     let previous;
     let numYears = this.endYear - this.startYear;
 
+    //will count iterations of for-loop
     let yearCount = 0;
 
     //Converts strings in selected data's column to numbers
@@ -168,13 +184,14 @@ function InternetUserCountryPop() {
 
         // Declare variable for colour from color picker
         let c = this.colorPicker.color()
-        let inv_c = invertColor(c)
+        let inv_c = invertColor(c)//inverted colour of colour from color picker
         
-        // Draws shape from previous year to current year then connects to bottom margin to close shape
+        //draw bars and points
         this.drawBars(previous, numYears, c, inv_c);
         this.drawPoints(previous);
-        
-        stroke(0)//put stroke to remove line gaps between vertex points
+
+        // Draws shape from previous year to current year then connects to bottom margin to close shape
+        stroke(50)
         beginShape();
         vertex(this.mapYearToWidth(previous.year),
           this.mapValueToHeight(previous.value));
@@ -182,18 +199,14 @@ function InternetUserCountryPop() {
           this.mapValueToHeight(current.value));
         endShape();
         
-        
-       
         //Draw point for final year
         if (current.year == this.endYear) {
-          // this.drawBars(current, numYears, c, inv_c);
+          this.drawBars(current, numYears, c, inv_c);
           this.drawPoints(current);
         };
-        
         yearCount++;
       };
 
-      
       // Stop drawing this frame when the number of years drawn is
       // equal to the frame count. This creates the animated effect
       // over successive frames.
@@ -210,33 +223,43 @@ function InternetUserCountryPop() {
     this.frameCount = this.frameCount + this.frameRate;
     
   };
-  this.drawBars = function(yr, numYr, colour, invColour){
-    noStroke();
-    let y = this.layout.bottomMargin;
 
-    let growth_rate = 5;
+  this.drawBars = function(yr, numYr, colour, invColour){
+    //draws bars for bar chart
+    noStroke();
+
+    //initialise y-coordinate of bars
+    const y = this.layout.bottomMargin;
+
+    //growth of bars animation
+    const growth_rate = 5;
     let grow = this.frameCount * growth_rate;
 
+    //animate height of bars
     let current_y = y - grow;
-    let cons_y = constrain(current_y, this.mapValueToHeight(yr.value), y);
+    let cons_y = constrain(current_y, this.mapValueToHeight(yr.value), y);//constrain bars' height to value-to-height
 
-    let gap = 5;
-    let w = (this.layout.plotWidth()/numYr) - gap
-    let height = this.layout.bottomMargin - cons_y;
-
+    //initialise size of bars
+    const gap = 1; // space between bars
+    const w = (this.layout.plotWidth() / numYr) - gap; // adjust width of each bar according to width of graph
+    let h = this.layout.bottomMargin - cons_y; // height of bars
     
-    let grad = lerpColor(invColour, colour, yr.value/100);
+    //create gradient between color from picker & inverse colour; maps percent of population to colour
+    let grad = lerpColor(invColour, colour, yr.value * 0.01);
+    
+    //rounding of bars' edge
+    const edge_round = 15;
 
-
-    fill(grad)
-    rect(this.mapYearToWidth(yr.year), cons_y, w, height)
+    //draw bars
+    fill(grad);
+    rect(this.mapYearToWidth(yr.year) - (w/2), cons_y, w, h, edge_round, edge_round, 0, 0);
   };
 
   this.drawPoints = function(yr){
     //Draws accessible points
     //Point settings
     noStroke();
-    fill(0);
+    fill(50);
     let pSize = 10;//Default diameter of points
 
     //Checks is mouse is on previous point then inflates point & create text
@@ -245,9 +268,10 @@ function InternetUserCountryPop() {
       text('Population with Internet access: ' + yr.value + '%' + '\n Year: ' + yr.year, width/2, height/10);
     };
 
-   //Draw points
-   ellipse(this.mapYearToWidth(yr.year), this.mapValueToHeight(yr.value), pSize);
+    //Draw points
+    ellipse(this.mapYearToWidth(yr.year), this.mapValueToHeight(yr.value), pSize);
   };
+
   this.mapYearToWidth = function (value) {
     return map(value,
       this.startYear,
@@ -263,13 +287,4 @@ function InternetUserCountryPop() {
       this.layout.bottomMargin,   // Draw top-to-bottom from margin.
       this.layout.topMargin);
   };
-
-  this.mapValueToColour = function(value, minColour, maxColour){
-    return map(value, 
-      this.minPercent,
-      this.maxPercent,
-      minColour,
-      maxColour);
-
-  }
 }
