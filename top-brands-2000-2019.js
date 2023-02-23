@@ -1,7 +1,7 @@
 function BarChart() {
 
   // Name for the visualisation to appear in the menu bar.
-  this.name = 'Animated Bar Chart of Top Brands 2000 to 2019';
+  this.name = 'Top Brands 2000 to 2019';
 
   // Each visualisation must have a unique ID with no special
   // characters.
@@ -9,6 +9,9 @@ function BarChart() {
 
   // Names for each axis.
   let marginSize = 35;
+  let years;
+  let dataArray = {};
+  let colorScale = {};
 
   // Layout object to store all common plot layout parameters and
   // methods.
@@ -17,213 +20,168 @@ function BarChart() {
 
     // Margin positions around the plot. Left and bottom have double
     // margin size to make space for axis and tick labels on the canvas.
-    leftMargin: marginSize * 2,
+    leftMargin: marginSize,
     rightMargin: width - marginSize,
     topMargin: marginSize,
-    bottomMargin: height - marginSize * 2,
+    bottomMargin: height - marginSize / 2,
     pad: 5,
 
-    plotWidth: function() {
+    plotWidth: function () {
       return this.rightMargin - this.leftMargin;
     },
 
-    plotHeight: function() {
+    plotHeight: function () {
       return this.bottomMargin - this.topMargin;
     },
 
     // Boolean to enable/disable background grid.
     grid: true,
 
-    // Number of axis tick labels to draw so that they are not drawn on
-    // top of one another.
-    numXTickLabels: 8,
+    // Number of axis tick labels to draw so that they are not drawn on top of one another.
+    numXTickLabels: 10,
     numYTickLabels: 8,
   };
 
   // Property to represent whether data has been loaded.
   this.loaded = false;
 
-  // Preload the data. This function is called automatically by the
-  // gallery when a visualisation is added.
-  this.preload = function() {
+  // Preload the data. This function is called automatically by the gallery when a visualisation is added.
+  this.preload = function () {
     var self = this;
     this.data = loadTable(
-      './data/choropleth/top-brands.csv', 'csv', 'header',
-      // Callback function to set the value
-      // this.loaded to true.
-      function(table) {
+      './data/top-brands/top-brands2.csv', 'csv', 'header',
+      // Callback function to set the value this.loaded to true.
+      function (table) {
         self.loaded = true;
       });
   };
 
-  this.setup = function() {
-    // Font defaults.
-    textSize(16);
-    textAlign('center', 'center');
-
-    // Set min and max years: assumes data is sorted by year.
-    this.minYear = min(this.data.getRow(1));
-    this.maxYear = max(this.data.getRow(1));
-
-    // Count the number of frames drawn since the visualisation
-    // started so that we can animate the plot.
+  this.setup = function () {
+    noStroke();
+    // Count the number of frames drawn since the visualisation started so that we can animate the chart.
     this.frameCount = 0;
+    this.frameRate = 10;
 
-    // Create sliders to control start and end years. Default to
-    // visualise full range.
-    this.slider = createSlider(this.minYear,
-                                    this.maxYear - 1,
-                                    this.minYear,
-                                    1);
-    this.slider.position(width, height - 30);
+    this.minYear = 2000;
+    this.maxYear = 2019;
+    this.year = this.minYear;
+
+    this.parseData();
+    console.log(dataArray);
+
+    this.maxVal = dataArray[this.maxYear][0].value;
+    console.log(this.maxVal);
   };
 
-  this.destroy = function() {
-    this.slider.remove();
+  this.destroy = function () {
+    textFont('Andale Mono');
+    textStyle(NORMAL);
   };
 
-  this.draw = function() {
+  // !Draw function
+  this.draw = function () {
     if (!this.loaded) {
       console.log('Data not yet loaded');
       return;
     }
+    const n = 12; // number of brands to display
+    let barHeight = this.layout.plotHeight() / n;
 
-    // Prevent slider ranges overlapping.
-    if (this.startSlider.value() >= this.endSlider.value()) {
-      this.startSlider.value(this.endSlider.value() - 1);
-    }
-    this.startYear = this.startSlider.value();
-    this.endYear = this.endSlider.value();
+    if (this.year <= this.maxYear) {
+      if (this.frameCount < this.frameRate) {
+        let data1 = dataArray[this.year];
+        let data2 = dataArray[this.year + 1];
+        let rank1 = 0;
+        let rank2 = 0;
 
-    // Draw all y-axis tick labels.
-    drawYAxisTickLabels(this.minTemperature,
-                        this.maxTemperature,
-                        this.layout,
-                        this.mapTemperatureToHeight.bind(this),
-                        1);
+        let xMax = map(this.maxVal, 0, this.maxVal, 0, this.layout.plotWidth()); // so maxVal always spans the entire plotWidth
 
-    // Draw x and y axis.
-    drawAxis(this.layout);
+        // TODO: change x-axis ticks and values based on maxVal
 
-    // Draw x and y axis labels.
-    drawAxisLabels(this.xAxisLabel,
-                   this.yAxisLabel,
-                   this.layout);
-
-    // Plot average line.
-    stroke(200);
-    strokeWeight(1);
-    line(this.layout.leftMargin,
-         this.mapTemperatureToHeight(this.meanTemperature),
-         this.layout.rightMargin,
-         this.mapTemperatureToHeight(this.meanTemperature));
-
-    // Plot all temperatures between startYear and endYear using the
-    // width of the canvas minus margins.
-    var previous;
-    var numYears = this.endYear - this.startYear;
-    var segmentWidth = this.layout.plotWidth() / numYears;
-
-    // Count the number of years plotted each frame to create
-    // animation effect.
-    var yearCount = 0;
-
-    // Loop over all rows but only plot those in range.
-    for (var i = 0; i < this.data.getRowCount(); i++) {
-
-      // Create an object to store data for the current year.
-      var current = {
-        // Convert strings to numbers.
-        'year': this.data.getNum(i, 'year'),
-        'temperature': this.data.getNum(i, 'temperature')
-      };
-
-      if (previous != null
-          && current.year > this.startYear
-          && current.year <= this.endYear) {
-
-        // Draw background gradient to represent colour temperature of
-        // the current year.
-        noStroke();
-        fill(this.mapTemperatureToColour(current.temperature));
-        rect(this.mapYearToWidth(previous.year), this.layout.topMargin, segmentWidth, this.layout.plotHeight());
-
-        // Draw line segment connecting previous year to current
-        // year temperature.
-        stroke(0);
-        line(this.mapYearToWidth(previous.year),
-             this.mapTemperatureToHeight(previous.temperature),
-             this.mapYearToWidth(current.year),
-             this.mapTemperatureToHeight(current.temperature));
-
-        // The number of x-axis labels to skip so that only
-        // numXTickLabels are drawn.
-        var xLabelSkip = ceil(numYears / this.layout.numXTickLabels);
-
-        // Draw the tick label marking the start of the previous year.
-        if (yearCount % xLabelSkip == 0) {
-          drawXAxisTickLabel(previous.year, this.layout,
-                             this.mapYearToWidth.bind(this));
+        for (let i = 0; i < n; i++) {
+          let valueNext = 0
+          let found = false;
+          // console.log(found);
+          if (this.year < this.maxYear) {
+            for (let j = 0; j < n + 50; j++) {
+              if (data1[i].name === data2[j].name) {
+                rank2 = j;
+                valueNext = data2[j].value;
+                found = true;
+                break
+              }
+            }
+          } else {
+            rank2 = rank1;
+            valueNext = data1[i].value;
+          }
+          if (found) {
+            let diff = rank2 - rank1;
+            fill(colorScale[data1[i].category]);
+            valueNext = map(valueNext, 0, this.maxVal, 0, this.layout.plotWidth());
+            let barWidth = map(data1[i].value, 0, this.maxVal, 0, this.layout.plotWidth());
+            let w = barWidth + (valueNext - barWidth) / this.frameRate * this.frameCount;
+            let yPos = (this.layout.topMargin + rank1 * barHeight) + (diff * barHeight) / this.frameRate * this.frameCount;
+            rect(this.layout.leftMargin, yPos, w, barHeight - 5);
+            rank1++;
+          }
         }
+        this.frameCount += 0.1;
 
-        // When six or fewer years are displayed also draw the final
-        // year x tick label.
-        if ((numYears <= 6
-             && yearCount == numYears - 1)) {
-          drawXAxisTickLabel(current.year, this.layout,
-                             this.mapYearToWidth.bind(this));
-        }
+        // * ticker showing year
+        textSize(40);
+        textFont('Helvetica');
+        textAlign('center', 'center');
+        textStyle(BOLD);
+        fill(0);
+        text(this.year, width - 120, height - marginSize * 2);
+      } else {
+        this.year++;
+        this.frameCount = 0;
+      }
+    } else noLoop();
+  } // end of draw()
 
-        yearCount++;
+  this.parseData = function () {
+
+    years = this.data.getColumn('year')
+      .filter((value, index, self) => self.indexOf(value) === index)
+      .sort((a, b) => a - b)
+      .filter(item => item !== '0');
+
+    for (let i = 0; i < this.data.getRowCount(); i++) {
+      let year = this.data.getNum(i, 'year');
+      let name = this.data.getString(i, 'name');
+      let category = this.data.getString(i, 'category');
+      let value = this.data.getNum(i, 'value');
+
+      if (year !== NaN) {
+        if (dataArray[year]) {
+          dataArray[year].push({ name, category, value })
+        } else dataArray[year] = [];
       }
 
-      // Stop drawing this frame when the number of years drawn is
-      // equal to the frame count. This creates the animated effect
-      // over successive frames.
-      if (yearCount >= this.frameCount) {
-        break;
+      // *assign unique colors to each category
+      if (category !== NaN) {
+        if (colorScale[category]) {
+          let r = random(100, 220);
+          let g = random(90, 180);
+          let b = random(90, 180);
+          let c = color(r, g, b)
+          colorScale[category] = c;
+        } else colorScale[category] = color(255, 0, 0);
       }
-
-      // Assign current year to previous year so that it is available
-      // during the next iteration of this loop to give us the start
-      // position of the next line segment.
-      previous = current;
     }
 
-    // Count the number of frames since this visualisation
-    // started. This is used in creating the animation effect and to
-    // stop the main p5 draw loop when all years have been drawn.
-    this.frameCount++;
+    // *sort dataArray based on values (ascending)
+    years.forEach(year => {
+      let arr = dataArray[year];
+      arr.sort((a, b) => b.value - a.value)
+      dataArray[year] = arr;
+    });
+  }
 
-    // Stop animation when all years have been drawn.
-    // if (this.frameCount >= numYears) {
-    //   // noLoop();
-    // }
-  };
-
-  this.mapYearToWidth = function(value) {
-    return map(value,
-               this.startYear,
-               this.endYear,
-               this.layout.leftMargin,   // Draw left-to-right from margin.
-               this.layout.rightMargin);
-  };
-
-  this.mapTemperatureToHeight = function(value) {
-    return map(value,
-               this.minTemperature,
-               this.maxTemperature,
-               this.layout.bottomMargin, // Lower temperature at bottom.
-               this.layout.topMargin);   // Higher temperature at top.
-  };
-
-  this.mapTemperatureToColour = function(value) {
-    var red =  map(value,
-                   this.minTemperature,
-                   this.maxTemperature,
-                   0,
-                   255);
-    var blue = 255 - red;
-    return color(red, 0, blue, 100);
-  };
+  this.mapValueToWidth = function (value) {
+    return map(value, 0, 100, 0, this.layout.plotWidth());
+  }
 }

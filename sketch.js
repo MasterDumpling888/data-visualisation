@@ -29,7 +29,7 @@ function setup() {
   gallery.addVisual(new ClimateChange());
   gallery.addVisual(new InternetUserCountryPop());
   gallery.addVisual(new FoodInflation2021());
-  // gallery.addVisual(new Choropleth());
+  gallery.addVisual(new BarChart());
   gallery.addVisual(new Map());
   gallery.addVisual(new LineGraph3D());
 }
