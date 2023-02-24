@@ -1,9 +1,5 @@
 function Map(){
-  // this.x = x;
-  // this.y = y;
-  // this.size = size;
-  // this.borderColor = borderColor;
-  // this.fill = fill;
+  
   this.name = 'map';
   this.id = 'map'
 
@@ -37,10 +33,20 @@ function Map(){
     return poly;
   };
 
+  this.preload = function(){
+    let self = this;
+    this.data = loadTable(
+      './data/population expansion 1960-2018/population_csv.csv', 'csv','header',
+      function(){
+        self.loaded = true
+      });
+  };
+
   this.setup = function(){
     for (let i = 0; i < country.length; i++){
       countryPolygons.push(this.convertPathToPoly(country[i].vertexPoint))
     };
+    
   };
 
   this.draw = function (){

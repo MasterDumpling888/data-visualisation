@@ -4,6 +4,7 @@
   * Pie Chart
   * Tech Diversity: Race
   * P5 reference page
+  * Ucodia: Arc Animation (https://gist.github.com/Ucodia/65ada7ac716e5aa2146201ae379231a7)
 */
 function FoodInflation2021() {
   this.name = 'PH Food Inflation: 2021';
@@ -30,19 +31,23 @@ function FoodInflation2021() {
     plotHeight: function () {
       return this.bottomMargin - this.topMargin;
     },
-
+    
+    //size of the circle
+    circSize: 500,
+    
     //centre x-coordinate of arc
     arcX: function () {
-      return width / 2;
+      return convertAngleToCoord(this.circSize, HALF_PI).x;
     },
     //centre y-coordinate of arc
     arcY: function () {
-      return height / 2;
+      return convertAngleToCoord(this.circSize, PI).y;
     },
 
     textY: function () {
       return this.arcY() - 250
     }
+
   };
 
   this.loaded = false;
@@ -63,9 +68,13 @@ function FoodInflation2021() {
     textSize(10);
     textAlign(CENTER);
 
-    //set min/max values
+    //set min/max values 
     this.minValue = 0;
-    this.maxValue = 10;
+    this.maxValue = max(this.data.getColumn('Value'));
+
+    this.frameCount = 0;
+
+    console.log(convertAngleToCoord(this.layout.circSize, TWO_PI))
   };
 
   this.draw = function () {
@@ -84,27 +93,58 @@ function FoodInflation2021() {
       };
 
       //declare variables affected by i
-      let diameter = 500 - (i * 40); //diameter of arcs; 500 is base value; 40 is scalar
+      let diameter = this.layout.circSize - (i * 40); //diameter of arcs; 500 is base value; 40 is scalar
       let textYInc = this.layout.textY() + (i * 20.25); //y-coordinates for labels of arcs
 
       // let tickLabel = [(this.minValue + this.maxValue/2)/2, this.maxValue/2, this.minValue, this.maxValue];
 
       // this.drawTicks(tickLabel[i],v1, v2.rotate(i * 90));
-
-      this.drawTitle()
+      
+      this.drawGrid(i);
+      this.drawTitle();
       this.drawName(current.month, textYInc); // draw month labels
-      this.drawLegend(current.value, this.colourArray[i], textYInc);//draw legend inflation values
+      this.drawValues(current.value, diameter, textYInc, this.colourArray[i]);//draw legend inflation values
 
-      //draw arcs
-      push();
-      stroke(this.colourArray[i]);
-      strokeWeight(10);
-      noFill();
-      arc(this.layout.arcX(), this.layout.arcY() + (i * 0.5), diameter, diameter, PI + HALF_PI, this.mapPercentToAngle(current.value)); //reference: Coding Train
-      pop();
+      this.drawArcs(current.value, i, diameter)
+
+      if(this.frameCount > 1){
+        grow = this.mapToAngle(true,current.value)
+      }
     };
+    this.frameCount += 0.01;
   };
+  
+  this.drawArcs = function(value, i , dia){
+    //draw animated arcs
+    push();
+    //declare variables
+    let arcStart = PI + HALF_PI; // arc's starting point
+    let grow = this.mapToAngle(false, value, this.frameCount); // growth of arc according to frameCount
+    let maxArc = constrain(grow, -arcStart,this.mapToAngle(true, value)); //make sure arcs don't go pass percent value
 
+    //draw arcs
+    stroke(this.colourArray[i]);
+    strokeWeight(10);
+    noFill();
+    arc(this.layout.arcX(), this.layout.arcY() + (i * 0.5), dia, dia, arcStart, maxArc); //reference: Coding Train
+    pop()
+  }
+
+  this.drawGrid = function(i){
+    //draw circle grid
+    push();
+    stroke(200);
+    noFill();
+
+    //declare diameter, convert vertex points for line
+    let d = this.layout.circSize + marginSize;
+    let c = convertAngleToCoord(d, PI + (i * QUARTER_PI));
+
+    //draw grid
+    ellipse(this.layout.arcX(), this.layout.arcY(), d, d);
+    line(this.layout.arcX(), this.layout.arcY(), c.x, c.y);
+    pop();
+  }
   this.drawName = function (value, y) {
     //draws labels for each arc
     fill(0)
@@ -113,20 +153,22 @@ function FoodInflation2021() {
     text(value + ' -', this.layout.arcX() - 10, y);
   };
 
-  this.drawLegend = function (label, colour, y) {
+  this.drawValues = function (value, dia, textY, colour) {
     //draw legend for inflation percent increase
     push();
-    let x = width - 100;
-    let d = 10;
+    let textX = 100;
+    
+    let coord = convertAngleToCoord(dia, this.mapToAngle(true, value));
 
-    fill(colour);
-    ellipse(x, y, d); // draw circle with colour
+    let x = coord.x ;
+    let y = coord.y ;
 
+    stroke(colour)
+    line(x, y, textX, textY)
     fill(0);
     noStroke();
-    textAlign(LEFT, CENTER);
-    textSize(13);
-    text(label, x + d, y);
+    textAlign(RIGHT, CENTER);
+    text(value, textX, textY);
     pop();
   };
 
@@ -138,12 +180,15 @@ function FoodInflation2021() {
     pop();
   };
 
-  this.mapPercentToAngle = function (value) {
-    //maps percent values into angles
-    return map(value,
-      this.minValue,
-      this.maxValue,
-      0, //minimum value will be mapped to 0rad or 0 degrees
-      PI); // maximum value will be mapped to PI or 180 degrees
+  this.mapToAngle = function (pick, value, frame) {
+    //pick whether mapping value or frameCount
+    //Boolean: true = value; false = frameCount
+    //maps percent value & frameCount to rad
+    return(pick ? map(value, // maps percent value to radians
+      this.minValue, this.maxValue,
+      0, //minimum value will be mapped to 0rad
+      PI) //maximum value will be mapped to PI
+      : 
+      map(frame, 0, 1, 0, PI)); //maps frameCount to PI
   };
 }

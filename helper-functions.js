@@ -132,9 +132,21 @@ function drawXAxisTickLabel(value, layout, mapFunction) {
  * inverse color function by benmoren (https://editor.p5js.org/benmoren/sketches/wpWhJ-22g)
  */
 function invertColor(colour){
+  //inverts whatever is inputted in 'colour'
   r = 255 - red(colour);
   g = 255 - green(colour);
   b = 255 - blue(colour);
 
   return color(r,g,b);
+}
+
+function convertAngleToCoord(diameter, ang){
+  //converts inputted angle to x-y-coordinates
+  let radius = diameter/2;
+
+  let x = radius * cos(ang) + width/2;
+  let y = radius * sin(ang) + height/2;
+
+  let vector = createVector(x, y); //use vector so can pass x,y as points
+  return vector
 }

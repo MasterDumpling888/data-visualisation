@@ -99,7 +99,7 @@ function InternetUserCountryPop() {
     this.gridButton.changed(this.layout.checkEvent);
     
     //Set position of checkbox
-    this.gridButton.position(width, height/4)
+    this.gridButton.position(width/1.6, height/4)
    
     // Find min and max percentage
     this.minPercent = 0;
@@ -219,7 +219,7 @@ function InternetUserCountryPop() {
       previous = current;
     };
 
-    //Count the numbers of times the draw loops
+    //increase frameCount by frameRate after every draw-loop
     this.frameCount = this.frameCount + this.frameRate;
     
   };
@@ -232,27 +232,27 @@ function InternetUserCountryPop() {
     const y = this.layout.bottomMargin;
 
     //growth of bars animation
-    const growth_rate = 5;
-    let grow = this.frameCount * growth_rate;
+    const growthRate = 5; // to make the growth quicker
+    let grow = this.frameCount * growthRate;
 
     //animate height of bars
-    let current_y = y - grow;
-    let cons_y = constrain(current_y, this.mapValueToHeight(yr.value), y);//constrain bars' height to value-to-height
+    let currentY = y - grow;
+    let consY = constrain(currentY, this.mapValueToHeight(yr.value), y);//constrain bars' height to value-to-height
 
     //initialise size of bars
-    const gap = 1; // space between bars
+    const gap = 10; // space between bars
     const w = (this.layout.plotWidth() / numYr) - gap; // adjust width of each bar according to width of graph
-    let h = this.layout.bottomMargin - cons_y; // height of bars
+    let h = this.layout.bottomMargin - consY; // height of bars
     
     //create gradient between color from picker & inverse colour; maps percent of population to colour
     let grad = lerpColor(invColour, colour, yr.value * 0.01);
     
     //rounding of bars' edge
-    const edge_round = 15;
+    const edgeRound = 15;
 
     //draw bars
     fill(grad);
-    rect(this.mapYearToWidth(yr.year) - (w/2), cons_y, w, h, edge_round, edge_round, 0, 0);
+    rect(this.mapYearToWidth(yr.year) - (w/2), consY, w, h, edgeRound, edgeRound, 0, 0);
   };
 
   this.drawPoints = function(yr){
