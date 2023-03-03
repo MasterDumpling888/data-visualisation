@@ -1,7 +1,7 @@
 function BarChart() {
 
   // Name for the visualisation to appear in the menu bar.
-  this.name = 'Top Brands 2000 to 2019';
+  this.name = 'Top Brands 2000-2019';
 
   // Each visualisation must have a unique ID with no special
   // characters.
@@ -24,7 +24,6 @@ function BarChart() {
     rightMargin: width - marginSize,
     topMargin: marginSize,
     bottomMargin: height - marginSize / 2,
-    pad: 5,
 
     plotWidth: function () {
       return this.rightMargin - this.leftMargin;
@@ -33,13 +32,6 @@ function BarChart() {
     plotHeight: function () {
       return this.bottomMargin - this.topMargin;
     },
-
-    // Boolean to enable/disable background grid.
-    grid: true,
-
-    // Number of axis tick labels to draw so that they are not drawn on top of one another.
-    numXTickLabels: 10,
-    numYTickLabels: 8,
   };
 
   // Property to represent whether data has been loaded.
@@ -60,11 +52,9 @@ function BarChart() {
     noStroke();
     // Count the number of frames drawn since the visualisation started so that we can animate the chart.
     this.frameCount = 0;
-    this.frameRate = 30;
+    this.frameRate = 15;
 
     this.parseData();
-    console.log(dataArray);
-
 
     this.minYear = 2000;
     this.maxYear = 2019;
@@ -86,6 +76,10 @@ function BarChart() {
     }
     const n = 12; // number of brands to display
     let barHeight = this.layout.plotHeight() / n;
+
+    // TODO: draw Title
+    // TODO: draw Legend
+    // TODO: draw x-Axis ??
 
     if (this.year <= this.maxYear) {
       let data1 = dataArray[this.year];
@@ -141,15 +135,13 @@ function BarChart() {
         this.frameCount = 0;
       } else this.frameCount += 0.1;
 
-      // * ticker showing year
       this.drawTicker(this.year);
     } else {
       this.year = this.minYear;
     };
   } // end of draw()
 
-  this.drawTicker = function (ticker) {
-    // * ticker showing year
+  this.drawTicker = function (ticker) {    // * ticker showing year
     textSize(40);
     textFont('Helvetica');
     textAlign('center', 'center');
@@ -158,10 +150,7 @@ function BarChart() {
     text(ticker, width - 120, height - marginSize * 2);
   }
 
-
-  // TODO: change parseData function -- use top-brands.csv
-  this.parseData = function () {
-
+  this.parseData = function () {  // * place all data in dataArray object
     for (let i = 0; i < this.data.getRowCount(); i++) {
       let year = this.data.getNum(i, 'year');
       let name = this.data.getString(i, 'name');
