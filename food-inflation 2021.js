@@ -21,7 +21,7 @@ function FoodInflation2021() {
 
     leftMargin: marginSize * 2,
     rightMargin: width - marginSize,
-    topMargin: marginSize + 76,
+    topMargin: marginSize,
     bottomMargin: height - marginSize * 2,
     pad: 5,
 
@@ -46,8 +46,13 @@ function FoodInflation2021() {
 
     textY: function () {
       return this.arcY() - 250
-    }
+    },
+    
+    grid: false,
 
+    numTicks: TWO_PI / QUARTER_PI, //dividing circle into 8 (360deg/45deg) 
+
+    arcStart: -HALF_PI //the starting point of the graph
   };
 
   this.loaded = false;
@@ -63,18 +68,25 @@ function FoodInflation2021() {
       });
   };
 
+  
   this.setup = function () {
     //setup default text attributes
     textSize(10);
     textAlign(CENTER);
-
+    
     //set min/max values 
     this.minValue = 0;
     this.maxValue = max(this.data.getColumn('Value'));
-
+    
     this.frameCount = 0;
-
-    console.log(convertAngleToCoord(this.layout.circSize, TWO_PI))
+    this.frameRate = 0.3;
+    
+    this.gridButton = createCheckbox('Grid', this.layout.grid);
+    this.gridButton.position(width, height/4);
+  };
+  
+  this.destroy = function(){
+    this.gridButton.remove();
   };
 
   this.draw = function () {
@@ -83,9 +95,13 @@ function FoodInflation2021() {
       return;
     }
 
-    // let v1 = createVector(this.layout.arcX(),this.layout.arcY())
-    // let v2 = createVector(250,0);
-
+    if(this.gridButton.checked()){
+      this.layout.grid = true;
+    } else {
+      this.layout.grid = false;
+    }
+    
+    this.drawGrid();
     for (let i = 0; i < this.data.getRowCount(); i++) {
       let current = {
         'month': this.data.getString(i, 'Months'),
@@ -96,55 +112,55 @@ function FoodInflation2021() {
       let diameter = this.layout.circSize - (i * 40); //diameter of arcs; 500 is base value; 40 is scalar
       let textYInc = this.layout.textY() + (i * 20.25); //y-coordinates for labels of arcs
 
-      // let tickLabel = [(this.minValue + this.maxValue/2)/2, this.maxValue/2, this.minValue, this.maxValue];
-
-      // this.drawTicks(tickLabel[i],v1, v2.rotate(i * 90));
       
-      this.drawGrid(i);
       this.drawTitle();
       this.drawName(current.month, textYInc); // draw month labels
-      this.drawValues(current.value, diameter, textYInc, this.colourArray[i]);//draw legend inflation values
-
+      
       this.drawArcs(current.value, i, diameter)
+      if(this.mapToAngle(false, current.value, this.frameCount) >= this.mapToAngle(true, this.maxValue)){
+        this.drawValues(current.value, diameter);//draw legend inflation values
 
-      if(this.frameCount > 1){
-        grow = this.mapToAngle(true,current.value)
-      }
+      } 
+      
     };
-    this.frameCount += 0.01;
+    this.frameCount += this.frameRate;
   };
   
   this.drawArcs = function(value, i , dia){
     //draw animated arcs
     push();
     //declare variables
-    let arcStart = PI + HALF_PI; // arc's starting point
+    let start = this.layout.arcStart; // arc's starting point
     let grow = this.mapToAngle(false, value, this.frameCount); // growth of arc according to frameCount
-    let maxArc = constrain(grow, -arcStart,this.mapToAngle(true, value)); //make sure arcs don't go pass percent value
+    let maxArc = constrain(grow, start, this.mapToAngle(true, value)); //make sure arcs don't go pass percent value
 
     //draw arcs
     stroke(this.colourArray[i]);
     strokeWeight(10);
     noFill();
-    arc(this.layout.arcX(), this.layout.arcY() + (i * 0.5), dia, dia, arcStart, maxArc); //reference: Coding Train
+    arc(this.layout.arcX(), this.layout.arcY() + (i * 0.5), dia, dia, start, maxArc); //reference: Coding Train
     pop()
   }
 
-  this.drawGrid = function(i){
-    //draw circle grid
-    push();
-    stroke(200);
-    noFill();
-
-    //declare diameter, convert vertex points for line
-    let d = this.layout.circSize + marginSize;
-    let c = convertAngleToCoord(d, PI + (i * QUARTER_PI));
-
-    //draw grid
-    ellipse(this.layout.arcX(), this.layout.arcY(), d, d);
-    line(this.layout.arcX(), this.layout.arcY(), c.x, c.y);
-    pop();
-  }
+  this.drawGrid = function(){
+    for(let i = 0; i < this.layout.numTicks; i++){
+      if(this.layout.grid){
+        //draw circle grid
+        push();
+        stroke(200);
+        noFill();
+  
+        //declare diameter, convert vertex points for line
+        let d = this.layout.circSize + marginSize;
+        let c = convertAngleToCoord(d, PI + (i * QUARTER_PI)); // draw ticks every 45degs
+  
+        //draw grid
+        ellipse(this.layout.arcX(), this.layout.arcY(), d, d);
+        line(this.layout.arcX(), this.layout.arcY(), c.x, c.y);
+        pop();
+      };
+    };
+  };
   this.drawName = function (value, y) {
     //draws labels for each arc
     fill(0)
@@ -153,30 +169,32 @@ function FoodInflation2021() {
     text(value + ' -', this.layout.arcX() - 10, y);
   };
 
-  this.drawValues = function (value, dia, textY, colour) {
+  this.drawValues = function (value, dia) {
     //draw legend for inflation percent increase
     push();
-    let textX = 100;
     
     let coord = convertAngleToCoord(dia, this.mapToAngle(true, value));
 
-    let x = coord.x ;
-    let y = coord.y ;
+    let x = coord.x;
+    let y = coord.y;
+    let alpha = this.frameCount * 2.5;
+    let roundedVal = round(value, 2);
 
-    stroke(colour)
-    line(x, y, textX, textY)
-    fill(0);
+    
+    fill(0, 0, 0, alpha);
     noStroke();
-    textAlign(RIGHT, CENTER);
-    text(value, textX, textY);
+    textAlign(CENTER, CENTER)
+    textStyle(BOLD);
+    text(roundedVal, x, y);
     pop();
   };
 
   this.drawTitle = function () {
     //draws title
     push();
+    textAlign(LEFT, TOP);
     textSize(20);
-    text(this.name, width / 2.5, height / 12);
+    text(this.name, this.layout.leftMargin, this.layout.topMargin);
     pop();
   };
 
@@ -189,6 +207,6 @@ function FoodInflation2021() {
       0, //minimum value will be mapped to 0rad
       PI) //maximum value will be mapped to PI
       : 
-      map(frame, 0, 1, 0, PI)); //maps frameCount to PI
+      map(frame, 0, 60, this.layout.arcStart, TWO_PI)); //maps frameCount to PI; maps 0 to starting point of arc
   };
 }

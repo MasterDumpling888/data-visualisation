@@ -22,7 +22,7 @@ function InternetUserCountryPop() {
     //margins of graphs
     leftMargin: marginSize * 2,
     rightMargin: width - marginSize,
-    topMargin: marginSize + 75,
+    topMargin: marginSize,
     bottomMargin: height - marginSize * 2,
     pad: 5,
 
@@ -34,10 +34,6 @@ function InternetUserCountryPop() {
       return this.bottomMargin - this.topMargin;
     },
 
-    checkEvent: function(){
-      if(this.checked()){
-      } 
-    },
     //on/off grid
     grid: false,
 
@@ -63,7 +59,6 @@ function InternetUserCountryPop() {
       });
   };
 
-  // let gridButton;
   this.setup = function () {
     //font settings
     textSize(16);
@@ -92,14 +87,13 @@ function InternetUserCountryPop() {
     this.colorPicker = createColorPicker(color(60, 236, 177));
 
     // Set the color picker position
-    this.colorPicker.position(width/2.3, height/4);
+    this.colorPicker.position(width/1.6, height/4);
 
     // Create checkbox for the grid of graph
     this.gridButton = createCheckbox('Grid',this.layout.grid);
-    this.gridButton.changed(this.layout.checkEvent);
     
     //Set position of checkbox
-    this.gridButton.position(width/1.6, height/4)
+    this.gridButton.position(width, height/4);
    
     // Find min and max percentage
     this.minPercent = 0;
@@ -110,8 +104,6 @@ function InternetUserCountryPop() {
     //Set frame rate
     this.frameRate = 0.3;
   };
-  
-
 
   this.destroy = function () {
     this.select.remove();
@@ -157,9 +149,7 @@ function InternetUserCountryPop() {
 
     //Converts strings in selected data's column to numbers
     let value = stringsToNumbers(this.data.getColumn(this.select.value()));
-    
-    let year_arr = [];
-    let val_arr = [];
+  
     for (let i = 0; i < this.data.getRowCount(); i++) {
       //object that stores data of current year
       let current = {
@@ -168,9 +158,6 @@ function InternetUserCountryPop() {
         'value': value[i]
       };
 
-      year_arr.push(current.year);
-      val_arr.push(current.value);
-      
       if (previous != null) {
         // The number of x-axis labels to skip so that only
         // numXTickLabels are drawn.
@@ -220,8 +207,8 @@ function InternetUserCountryPop() {
     };
 
     //increase frameCount by frameRate after every draw-loop
-    this.frameCount = this.frameCount + this.frameRate;
-    
+    this.frameCount += this.frameRate;
+
   };
 
   this.drawBars = function(yr, numYr, colour, invColour){
