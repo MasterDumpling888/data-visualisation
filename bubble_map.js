@@ -41,6 +41,7 @@ function WorldMap() {
     for (let i = 0; i < country.length; i++) {
       countryPolygons.push(this.convertPathToPoly(country[i].vertexPoint))
     };
+
   };
 
   this.draw = function () {

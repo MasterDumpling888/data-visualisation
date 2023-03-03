@@ -29,9 +29,15 @@ function setup() {
   gallery.addVisual(new ClimateChange());
   gallery.addVisual(new InternetUserCountryPop());
   gallery.addVisual(new FoodInflation2021());
+<<<<<<< HEAD
   gallery.addVisual(new BarChart());
   gallery.addVisual(new WorldMap());
   gallery.addVisual(new LineGraph3D());
+=======
+  gallery.addVisual(new WaffleChart())
+  // gallery.addVisual(new Choropleth());
+  // gallery.addVisual(new Map());
+>>>>>>> f9a590caa84ce64e2af19f3bbd3f90af51850d93
 }
 
 function draw() {
