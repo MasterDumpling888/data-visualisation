@@ -9,7 +9,7 @@ function BarChart() {
 
   // Names for each axis.
   let marginSize = 35;
-  let years;
+
   let dataArray = {};
   let colorScale = {};
 
@@ -60,17 +60,17 @@ function BarChart() {
     noStroke();
     // Count the number of frames drawn since the visualisation started so that we can animate the chart.
     this.frameCount = 0;
-    this.frameRate = 10;
+    this.frameRate = 30;
+
+    this.parseData();
+    console.log(dataArray);
+
 
     this.minYear = 2000;
     this.maxYear = 2019;
     this.year = this.minYear;
 
-    this.parseData();
-    console.log(dataArray);
-
     this.maxVal = dataArray[this.maxYear][0].value;
-    console.log(this.maxVal);
   };
 
   this.destroy = function () {
@@ -88,66 +88,79 @@ function BarChart() {
     let barHeight = this.layout.plotHeight() / n;
 
     if (this.year <= this.maxYear) {
-      if (this.frameCount < this.frameRate) {
-        let data1 = dataArray[this.year];
-        let data2 = dataArray[this.year + 1];
-        let rank1 = 0;
-        let rank2 = 0;
+      let data1 = dataArray[this.year];
+      let data2 = dataArray[this.year + 1];
+      let rank1 = 0;
+      let rank2 = 0;
 
-        let xMax = map(this.maxVal, 0, this.maxVal, 0, this.layout.plotWidth()); // so maxVal always spans the entire plotWidth
-
-        // TODO: change x-axis ticks and values based on maxVal
-
-        for (let i = 0; i < n; i++) {
-          let valueNext = 0
-          let found = false;
-          // console.log(found);
-          if (this.year < this.maxYear) {
-            for (let j = 0; j < n + 50; j++) {
-              if (data1[i].name === data2[j].name) {
-                rank2 = j;
-                valueNext = data2[j].value;
-                found = true;
-                break
-              }
+      for (let i = 0; i < n; i++) {
+        let valueNext = 0
+        let found = false;
+        // console.log(found);
+        if (this.year < this.maxYear) {
+          for (let j = 0; j < n + 50; j++) {
+            if (data1[i].name === data2[j].name) {
+              rank2 = j;
+              valueNext = data2[j].value;
+              found = true;
+              break
             }
-          } else {
-            rank2 = rank1;
-            valueNext = data1[i].value;
           }
-          if (found) {
-            let diff = rank2 - rank1;
-            fill(colorScale[data1[i].category]);
-            valueNext = map(valueNext, 0, this.maxVal, 0, this.layout.plotWidth());
-            let barWidth = map(data1[i].value, 0, this.maxVal, 0, this.layout.plotWidth());
-            let w = barWidth + (valueNext - barWidth) / this.frameRate * this.frameCount;
-            let yPos = (this.layout.topMargin + rank1 * barHeight) + (diff * barHeight) / this.frameRate * this.frameCount;
-            rect(this.layout.leftMargin, yPos, w, barHeight - 5);
-            rank1++;
-          }
+        } else if (this.year = this.maxYear) {
+          rank2 = rank1;
+          valueNext = data1[i].value;
+          found = true;
         }
-        this.frameCount += 0.1;
+        if (found) {
+          let diff = rank2 - rank1;
+          let valueNextWidth = this.mapValueToWidth(valueNext);
+          let barWidth = this.mapValueToWidth(data1[i].value);
+          let w = barWidth + (valueNextWidth - barWidth) / this.frameRate * this.frameCount;
+          let yPos = (this.layout.topMargin + rank1 * barHeight) + (diff * barHeight) / this.frameRate * this.frameCount;
 
-        // * ticker showing year
-        textSize(40);
-        textFont('Helvetica');
-        textAlign('center', 'center');
-        textStyle(BOLD);
-        fill(0);
-        text(this.year, width - 120, height - marginSize * 2);
-      } else {
+          //draw bar
+          noStroke();
+          fill(colorScale[data1[i].category]);
+          rect(this.layout.leftMargin, yPos, w, barHeight - 5);
+
+          //draw name and value
+          let dispValue = ceil(data1[i].value + (valueNext - data1[i].value) / this.frameRate * this.frameCount);
+          fill('#FFFFFF');
+          stroke('#000000');
+          textAlign(RIGHT);
+          textSize(12);
+          textStyle(NORMAL);
+          text(data1[i].name, this.layout.leftMargin + w - 20, yPos + 10);
+          text(dispValue, this.layout.leftMargin + w - 20, yPos + 30)
+
+          rank1++;
+        }
+      }
+      if (this.frameCount >= this.frameRate - 0.1) {
         this.year++;
         this.frameCount = 0;
-      }
-    } else noLoop();
+      } else this.frameCount += 0.1;
+
+      // * ticker showing year
+      this.drawTicker(this.year);
+    } else {
+      this.year = this.minYear;
+    };
   } // end of draw()
 
-  this.parseData = function () {
+  this.drawTicker = function (ticker) {
+    // * ticker showing year
+    textSize(40);
+    textFont('Helvetica');
+    textAlign('center', 'center');
+    textStyle(BOLD);
+    fill(0);
+    text(ticker, width - 120, height - marginSize * 2);
+  }
 
-    years = this.data.getColumn('year')
-      .filter((value, index, self) => self.indexOf(value) === index)
-      .sort((a, b) => a - b)
-      .filter(item => item !== '0');
+
+  // TODO: change parseData function -- use top-brands.csv
+  this.parseData = function () {
 
     for (let i = 0; i < this.data.getRowCount(); i++) {
       let year = this.data.getNum(i, 'year');
@@ -155,11 +168,10 @@ function BarChart() {
       let category = this.data.getString(i, 'category');
       let value = this.data.getNum(i, 'value');
 
-      if (year !== NaN) {
-        if (dataArray[year]) {
-          dataArray[year].push({ name, category, value })
-        } else dataArray[year] = [];
+      if (!dataArray[year]) {
+        dataArray[year] = []; // create array
       }
+      dataArray[year].push({ name, category, value });
 
       // *assign unique colors to each category
       if (category !== NaN) {
@@ -174,14 +186,14 @@ function BarChart() {
     }
 
     // *sort dataArray based on values (ascending)
-    years.forEach(year => {
-      let arr = dataArray[year];
-      arr.sort((a, b) => b.value - a.value)
-      dataArray[year] = arr;
-    });
+    for (let i = this.minYear; i <= this.maxYear; i++) {
+      let arr = dataArray[i];
+      arr.sort((a, b) => b.value - a.value);
+      dataArray[i] = arr;
+    }
   }
 
   this.mapValueToWidth = function (value) {
-    return map(value, 0, 100, 0, this.layout.plotWidth());
+    return map(value, 0, this.maxVal, 0, this.layout.plotWidth());
   }
 }

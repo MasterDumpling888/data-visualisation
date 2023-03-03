@@ -4,7 +4,7 @@
 var gallery;
 
 // preloads font
-function preload (){
+function preload() {
   font = loadFont('./assets/AvenirLTStd-Roman.otf');
 };
 
@@ -30,7 +30,7 @@ function setup() {
   gallery.addVisual(new InternetUserCountryPop());
   gallery.addVisual(new FoodInflation2021());
   gallery.addVisual(new BarChart());
-  gallery.addVisual(new Map());
+  gallery.addVisual(new WorldMap());
   gallery.addVisual(new LineGraph3D());
 }
 
