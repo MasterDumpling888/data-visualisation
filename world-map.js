@@ -4,7 +4,7 @@ function WorldMap() {
   // this.size = size;
   // this.borderColor = borderColor;
   // this.fill = fill;
-  this.name = 'Population of the World 1960-2020';
+  this.name = 'World Population';
   this.id = 'world-map'
 
   this.size = 0.5
