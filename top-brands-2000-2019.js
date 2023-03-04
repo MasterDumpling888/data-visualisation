@@ -10,7 +10,7 @@ function BarChart() {
   //set margin padding
   let marginSize = 35;
 
-  //arrays
+  //declare array objects
   let dataArray = {};
   let colorScale = {};
 
@@ -30,7 +30,6 @@ function BarChart() {
     plotHeight: function () {
       return this.bottomMargin - this.topMargin;
     },
-
 
     //on/off grid
     grid: true,
@@ -53,7 +52,7 @@ function BarChart() {
       './data/top-brands/top-brands2.csv', 'csv', 'header',
       
       //callback, sets this.loaded to true when data is finished loading
-      function (table) {
+      function () {
         self.loaded = true;
       });
   };
@@ -82,8 +81,7 @@ function BarChart() {
   this.destroy = function () {
     dataArray = {}; //reset the dataArray object when graph is accessed more than once
     //so dataArray won't keep growing
-    // textFont('Andale Mono');
-    // textStyle(NORMAL);
+    colorScale = {}; //reset colorScale array object when graph is access more than once
   };
 
   this.draw = function () {
@@ -98,7 +96,16 @@ function BarChart() {
 
     // TODO: draw Legend
     // TODO: draw x-Axis ??
-
+    let xTicks = [];
+    for(let i = this.layout.numXTickLabels; i >= 1; i--){
+      let xVal = ceil(this.maxVal/i);
+      xTicks.push(xVal);
+    }
+    for(let i = 1; i <= this.layout.numXTickLabels; i++){
+      drawXAxisTickLabel(xTicks[i], this.layout, this.mapValueToWidth.bind(this));
+    }
+    
+    // xTicks.push(xVal);
     if (this.year <= this.maxYear) {
       let data1 = dataArray[this.year];
       let data2 = dataArray[this.year + 1];
@@ -128,7 +135,7 @@ function BarChart() {
           let barWidth = this.mapValueToWidth(data1[i].value);
           let w = barWidth + (valueNextWidth - barWidth) / this.frameRate * this.frameCount;
           let yPos = (this.layout.topMargin + rank1 * barHeight) + (diff * barHeight) / this.frameRate * this.frameCount;
-          let gap =5;
+          let gap = 5;
 
           //draw bar
           noStroke();

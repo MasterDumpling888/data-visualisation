@@ -132,10 +132,10 @@ function drawXAxisTickLabel(value, layout, mapFunction) {
  * inverse color function by benmoren (https://editor.p5js.org/benmoren/sketches/wpWhJ-22g)
  */
 function invertColor(colour){
-  //inverts whatever is inputted in 'colour'
-  r = 255 - red(colour);
-  g = 255 - green(colour);
-  b = 255 - blue(colour);
+  //inverts colour of passed argument
+  let r = 255 - red(colour);
+  let g = 255 - green(colour);
+  let b = 255 - blue(colour);
 
   return color(r,g,b);
 }

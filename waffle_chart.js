@@ -8,10 +8,10 @@ class WaffleChart {
     this.name = 'Waffle Chart';
     this.id = 'waffle-chart';
 
-    this.frameCount;
-    this.frameRate;
-    this.waff;
+    //declare  waffles array
     this.waffles = [];
+
+    //property of data's load status
     this.loaded = false;
 
     //set standard layout of data visualisation
