@@ -1,26 +1,39 @@
-/**reference: //based on topic 6: 6.206 Extending the data visualiser: building the waffle charts 
- * MDN Web Docs reference https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
+/* reference: // based on topic 6: 6.206 Extending the data visualiser: building the waffle charts 
+ * MDN Web Docs reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
  */
-//parent constructor that is accessed by gallery
 class WaffleChart {
+  //parent constructor that is accessed by gallery
   constructor(){
+    //declare properties
     this.name = 'Waffle Chart';
     this.id = 'waffle-chart';
 
+    this.frameCount;
+    this.frameRate;
     this.waff;
     this.waffles = [];
     this.loaded = false;
-    this.frameCount;
-    this.frameRate;
 
+    //set standard layout of data visualisation
     this.marginSize = 35;
+
+    this.leftMargin = this.marginSize * 2;
+    this.topMargin = this.marginSize;
+    
+    //set layout of waffle chart 
+    this.waffX = this.leftMargin + 50;
+    this.waffY = this.topMargin + 100;
+    this.waffWidth = 120;
+    this.waffHeight = 120;
+    this.gap = 110; //gap in between waffles
+    this.spacingX = this.waffWidth + this.gap;
+    this.spacingY = this.waffHeight + this.waffY + this.gap;
+
+    //number of boxes in each waffle
+    this.numBoxAcross = 7;
+    this.numBoxDown = 7;
   };
 
-  // layout = {
-  //   marginSize: this.marginSize,
-  //   leftMargin
-  // }
-  
   preload = function(){
     let self = this;
     this.data = loadTable('./data/finalData.csv', 'csv', 'header',
@@ -39,14 +52,37 @@ class WaffleChart {
     this.frameCount = 0;
     this.frameRate = 0.3;
 
+    //pushes Waffle object into this.waffles array
     for(let i = 0; i < days.length; i++){
-      if(i < 4){
-        this.waffles.push(new Waffle(20 + (i * 200), 20, 100,100,10,10,this.data, days[i], values, this.frameCount, this.frameRate));
+      if(i < 4) {
+        this.waffles.push(
+          new Waffle(
+            this.waffX + (i * this.spacingX), 
+            this.waffY, 
+            this.waffWidth, 
+            this.waffHeight, 
+            this.numBoxAcross,
+            this.numBoxDown, 
+            this.data, days[i], values, 
+            this.frameCount, this.frameRate
+            )
+          );
+        //calls addCat & addBox
         this.waffles[i].addCat();
         this.waffles[i].addBox();
-        
       } else {
-        this.waffles.push(new Waffle(20 + (i - 4) * 200, 200, 100,100,10,10,this.data, days[i], values, this.frameCount, this.frameRate));
+        this.waffles.push(
+          new Waffle(
+            this.waffX + (i - 4) * this.spacingX, 
+            this.spacingY, 
+            this.waffWidth, 
+            this.waffHeight,
+            this.numBoxAcross,
+            this.numBoxDown,this.data, days[i], values, 
+            this.frameCount, this.frameRate
+            )
+          );
+        //calls addCat & addBox
         this.waffles[i].addCat();
         this.waffles[i].addBox();
       };
@@ -56,23 +92,49 @@ class WaffleChart {
   destroy = function(){
     //reset waffles when user exits from graph
     this.waffles.length = 0;
-  }
+  };
+  
+  drawTitle = function(){
+    //draw title of chart
+    push();
+    noStroke();
+    fill(0);
+    textSize(36)
+    textAlign(LEFT, TOP);
+    text('Preferred Meals on Days of the Week', this.waffX, this.topMargin);
+    pop();
+  };
 
   draw = function(){
-    for(let i = 0; i< this.waffles.length;i++){
+    //draw chart
+    this.drawTitle(); //draw title
+    for(let i = 0; i < this.waffles.length;i++){
+      //draw waffles for every day of the week
       this.waffles[i].draw();
     }
     for(let i = 0; i < this.waffles.length;i++){
+      //check is mouse hovering over boxes of waffles
       this.waffles[i].checkMouse();
     };
   };
 };
 
-//subclass constructor for waffle
 class Waffle extends WaffleChart {
-  constructor(x, y, w, h, boxAcross, boxDown, data, colHead, possibleVal, frameCount, frameRate){
-    super(x, y, w, h, boxAcross, boxDown, data, colHead, possibleVal, frameCount, frameRate);
+  //child of WaffleChart; subclass constructor for waffle
+  constructor(
+    x, y, w, h, 
+    boxAcross, boxDown, 
+    data, colHead, possibleVal, 
+    frameCount, frameRate){
+    //declare/initialise properties
+    //calls on parent for passed properties
+    super(
+      x, y, w, h, 
+      boxAcross, boxDown, 
+      data, colHead, possibleVal, 
+      frameCount, frameRate);
 
+    //initialise called properties
     this.x = x;
     this.y = y;
     this.w = w;
@@ -84,8 +146,7 @@ class Waffle extends WaffleChart {
     this.frameCount = frameCount;
     this.frameRate = frameRate;
 
-
-    // this.frame;
+    // initialise own properties
     this.cat = [];
     this.boxes = [];
     this.colours = [
@@ -98,7 +159,6 @@ class Waffle extends WaffleChart {
     this.column = data.getColumn(colHead);
   }
   
-
   catLoc = function(catName){
     for(let i = 0; i < this.cat.length; i++){
       if(catName == this.cat[i].name){
@@ -152,83 +212,92 @@ class Waffle extends WaffleChart {
   };
   
   
-  //if mouse is hovering over box than print val of box 
   checkMouse = function(mouseX, mouseY){
+    //if mouse is hovering over box than print val of box 
     for( let i = 0; i < this.boxes.length; i++){
       for(let j = 0; j < this.boxes[i].length; j++){
         if(this.boxes[i][j].cat != undefined){
           let mouseOn = this.boxes[i][j].mouseOver(mouseX, mouseY);
           if(mouseOn != false){
             push();
-              fill(0);
-              textSize(20);
+              fill(100);
+              textSize(10);
               let textW = textWidth(mouseOn);
-              textAlign(LEFT, TOP);
-              rect(mouseX, mouseY, textW + 20, 40);
-              fill(255);
+              textAlign(LEFT, CENTER);
+              rect(mouseX, mouseY, textW + 20, 20);
+              fill(255);  
+              noStroke();
+              textStyle(BOLD);
               text(mouseOn, mouseX + 10, mouseY + 10);
+              textAlign(CENTER, CENTER)
+              
             pop();
-            break;
+            return mouseOn;
           };
         };
       };
     };
   };
 
-  //draw day of the week over each waffle
   drawDay = function(){
+    //draw day of the week for each waffle
     push();
     noStroke();
     fill(0);
     textSize(20);
-    textAlign(LEFT, BOTTOM);
-    text(this.colHead, this.x, this.y);
+    textAlign(CENTER, TOP);
+    text(this.colHead, this.x + (this.w/2), this.y + this.h + 5);
     pop();
   }
     
   draw = function(){
-    let boxCount = 0;
+    //draw boxes in each waffle
+    let boxCount = 0; //count boxes
  
     for(let i = 0; i < this.boxes.length; i++){
       for(let j = 0; j < this.boxes[i].length; j++){
         if(this.boxes[i][j].cat != undefined){
           this.boxes[i][j].draw();
           boxCount++;
-        }
+        };
+        //will create the animation effect
         if(boxCount >= this.frameCount){
           break;
-        }
-      }
-      
-    }
-    this.drawDay();
-    this.checkMouse(mouseX, mouseY);
-    this.frameCount += this.frameRate; 
+        };
+      };
+    };
+    this.drawDay();//draw day of the week for each waffle
+    this.checkMouse(mouseX, mouseY); //check mouse hover on every box
+    this.frameCount += this.frameRate; //increase the frameCount by frameRate after every draw loop
   };
-  
 };
-//subclass constructor for each box in the waffle
 class Box extends WaffleChart {
+  //child of WaffleChart; subclass constructor for each box in the waffle
   constructor(x, y, w, h, cat){
+    //declare/initialise properties
+    //calls on parent for passed properties
     super(x, y, w, h, cat);
 
+    //initialise called properties
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
     this.cat = cat;
-    
   }
+  
   mouseOver = function(mouseX, mouseY){
+    //checks if mouse is hovering over box then returns value if true
     if(mouseX > this.x && mouseX < this.x + this.w&& mouseY > this.y && mouseY < this.y + this.h){
       return this.cat.name;
     };
     return false
   };
+  
   draw = function(){
+    //draws box
     stroke(0)
     fill(this.cat.colour);
     rect(this.x, this.y, this.w, this.h);
-    
   };
 };

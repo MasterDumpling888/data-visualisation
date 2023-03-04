@@ -47,13 +47,13 @@ function InternetUserCountryPop() {
   //property for data's load status
   this.loaded = false;
 
-  //preload data
   this.preload = function () {
+    //preload data
     let self = this;
     //load data set
     this.data = loadTable('./data/internet-users/internet_1990_2020.csv', 'csv', 'header',
 
-      //callback, sets this.loaded to true
+      //callback, sets this.loaded to true when data is finished loading
       function () {
         self.loaded = true;
       });
@@ -99,9 +99,10 @@ function InternetUserCountryPop() {
     this.minPercent = 0;
     this.maxPercent = 100;
 
-    //Set controlled frame count
+    //count the number of frames drawn since the visualisation started so that we can animate the chart
+    //set controlled frame count
     this.frameCount = 0;
-    //Set frame rate
+    //set frame rate
     this.frameRate = 0.3;
   };
 
@@ -112,9 +113,10 @@ function InternetUserCountryPop() {
   };
 
   this.draw = function () {
+    //draw graph
     //checks if data is loaded and if not alerts
     if (!this.loaded) {
-      alert("Data hasn't loaded!");
+      alert('Data not yet loaded!');
       return;
     }
     
@@ -232,7 +234,7 @@ function InternetUserCountryPop() {
     let h = this.layout.bottomMargin - consY; // height of bars
     
     //create gradient between color from picker & inverse colour; maps percent of population to colour
-    let grad = lerpColor(invColour, colour, yr.value * 0.01);
+    let grad = lerpColor(invColour, colour, yr.value * 0.01 );
     
     //rounding of bars' edge
     const edgeRound = 15;
@@ -260,6 +262,7 @@ function InternetUserCountryPop() {
   };
 
   this.mapYearToWidth = function (value) {
+    //map year to width of graph
     return map(value,
       this.startYear,
       this.endYear,
@@ -268,6 +271,7 @@ function InternetUserCountryPop() {
   };
 
   this.mapValueToHeight = function (value) {
+    //map value to height of graph
     return map(value,
       this.minPercent,
       this.maxPercent,

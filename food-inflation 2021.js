@@ -114,7 +114,7 @@ function FoodInflation2021() {
 
       
       this.drawTitle();
-      this.drawName(current.month, textYInc); // draw month labels
+      this.drawMonthLabel(current.month, textYInc); // draw month labels
       
       this.drawArcs(current.value, i, diameter)
       if(this.mapToAngle(false, current.value, this.frameCount) >= this.mapToAngle(true, this.maxValue)){
@@ -161,7 +161,7 @@ function FoodInflation2021() {
       };
     };
   };
-  this.drawName = function (value, y) {
+  this.drawMonthLabel = function (value, y) {
     //draws labels for each arc
     fill(0)
     noStroke();
