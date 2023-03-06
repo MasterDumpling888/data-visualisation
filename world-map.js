@@ -46,7 +46,19 @@ function WorldMap() {
 
   this.draw = function () {
     push();
-    translate(0, 0)
+    translate(0, 0);
+
+    let collision = false;
+    for (let i = 0; i < countryPolygons.length; i++) {
+      fill(100);
+      if (!collision && mouseIsPressed) {
+        collision = countryPolygons[i].some(poly => this.collisionDetection(poly, mouseX, mouseY));
+        if (collision) {
+          fill('blue');
+        }
+      }
+    }
+
     stroke(255);
     strokeWeight(1);
     for (let i = 0; i < countryPolygons.length; i++) {
@@ -62,4 +74,25 @@ function WorldMap() {
 
     pop();
   }
+
+  this.collisionDetection = function (polygon, x, y) {
+    let c = false;
+    // for each edge of the polygon
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      // Compute the slope of the edge
+      let slope = (polygon[j][1] - polygon[i][1]) / (polygon[j][0] - polygon[i][0]);
+
+      // If the mouse is positioned within the vertical bounds of the edge
+      if (((polygon[i][1] > y) != (polygon[j][1] > y)) &&
+        // And it is far enough to the right that a horizontal line from the
+        // left edge of the screen to the mouse would cross the edge
+        (x > (y - polygon[i][1]) / slope + polygon[i][0])) {
+
+        // Flip the flag
+        c = !c;
+      }
+    }
+    return c;
+  }
+
 }
