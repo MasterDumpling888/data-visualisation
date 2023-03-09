@@ -1,4 +1,5 @@
-/* reference: // based on topic 6: 6.206 Extending the data visualiser: building the waffle charts 
+/*
+* reference: // based on topic 6: 6.206 Extending the data visualiser: building the waffle charts 
  * MDN Web Docs reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
  */
 class WaffleChart {

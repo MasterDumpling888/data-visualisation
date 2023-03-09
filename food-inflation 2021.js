@@ -1,10 +1,11 @@
-/* reference: // mostly built upon the standard structure of template //
-  * Coding Train: Clock with p5.js
-  * DatVizProject: Radial Bar Chart
+/*
+* reference: // mostly built upon the standard structure of template //
+  * Coding Train: Clock with p5.js: https://editor.p5js.org/codingtrain/sketches/2lvHFWPbW
+  * DatVizProject: Radial Bar Chart: https://datavizproject.com/data-type/circular-bar-chart/
   * Pie Chart
   * Tech Diversity: Race
   * P5 reference page
-  * Ucodia: Arc Animation (https://gist.github.com/Ucodia/65ada7ac716e5aa2146201ae379231a7)
+  * Ucodia: Arc Animation: https://gist.github.com/Ucodia/65ada7ac716e5aa2146201ae379231a7
 */
 function FoodInflation2021() {
   this.name = 'PH Food Inflation: 2021';
@@ -82,7 +83,7 @@ function FoodInflation2021() {
     this.frameRate = 0.3;
     
     this.gridButton = createCheckbox('Grid', this.layout.grid);
-    this.gridButton.position(width, height/4);
+    this.gridButton.position(width, height/4);//positions according to HTML size
   };
   
   this.destroy = function(){
@@ -100,7 +101,7 @@ function FoodInflation2021() {
     } else {
       this.layout.grid = false;
     }
-    
+    //draw the grid
     this.drawGrid();
     for (let i = 0; i < this.data.getRowCount(); i++) {
       let current = {
@@ -192,7 +193,7 @@ function FoodInflation2021() {
   this.drawTitle = function () {
     //draws title
     push();
-    textAlign(LEFT, TOP);
+    textAlign(LEFT, CENTER);
     textSize(20);
     text(this.name, this.layout.leftMargin, this.layout.topMargin);
     pop();

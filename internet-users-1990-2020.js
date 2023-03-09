@@ -1,7 +1,8 @@
-/* reference: // mostly built upon the standard structure of template //
+/*
+* reference: // mostly built upon the standard structure of template //
   * PayGap 1997-2017(from template)
   * P5 reference page
-  * Coding Train: Checkbox Ideas https://gist.github.com/shiffman/7549e5225c042ee25a80
+  * Coding Train: Checkbox Ideas: https://gist.github.com/shiffman/7549e5225c042ee25a80
  */
 function InternetUserCountryPop() {
   //name for visualisation

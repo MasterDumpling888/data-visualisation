@@ -1,5 +1,7 @@
-/* reference:
+/*
+* reference:
  * D3: Bar Chart Race https://observablehq.com/@d3/bar-chart-race-explained
+ * A4 - Bar Chart Race - P5: https://gist.github.com/rubinjohny/f0d3c16afc77b4915bb4132afd833943
  */
 function BarChart() {
   //name for visualisation
@@ -21,7 +23,7 @@ function BarChart() {
     leftMargin: marginSize,
     rightMargin: width - marginSize,
     topMargin: marginSize,
-    bottomMargin: height - marginSize * 2,
+    bottomMargin: height - marginSize * 3,
 
     plotWidth: function () {
       return this.rightMargin - this.leftMargin;
@@ -35,7 +37,7 @@ function BarChart() {
     grid: true,
 
     //numbers of tick labels beside the base tick
-    numXTickLabels: 10,
+    numXTickLabels: 5,
 
     //number of brands to display
     numBrands: 12
@@ -94,18 +96,9 @@ function BarChart() {
 
     let barHeight = this.layout.plotHeight() / this.layout.numBrands; //set the thickness of each bar
 
-    // TODO: draw Legend
-    // TODO: draw x-Axis ??
-    let xTicks = [];
-    for(let i = this.layout.numXTickLabels; i >= 1; i--){
-      let xVal = ceil(this.maxVal/i);
-      xTicks.push(xVal);
-    }
-    for(let i = 1; i <= this.layout.numXTickLabels; i++){
-      drawXAxisTickLabel(xTicks[i], this.layout, this.mapValueToWidth.bind(this));
-    }
-    
-    // xTicks.push(xVal);
+    // draw x-ticks
+    this.drawTicks();
+
     if (this.year <= this.maxYear) {
       let data1 = dataArray[this.year];
       let data2 = dataArray[this.year + 1];
@@ -141,6 +134,7 @@ function BarChart() {
           noStroke();
           fill(colorScale[data1[i].category]);
           rect(this.layout.leftMargin, yPos, w, barHeight - gap);
+          
 
           //draw name and value; moves with width of each bar
           let dispValue = ceil(data1[i].value + (valueNext - data1[i].value) / this.frameRate * this.frameCount);
@@ -151,7 +145,7 @@ function BarChart() {
             textSize(12);
             textStyle(NORMAL);
             text(data1[i].name, this.layout.leftMargin + w - 10, yPos + 10);
-            text(dispValue, this.layout.leftMargin + w - 10, yPos + 30);
+            text(dispValue, this.layout.leftMargin + w - 10, yPos + 25);
           pop();
 
           rank1++;
@@ -162,20 +156,36 @@ function BarChart() {
         this.frameCount = 0;
       } else this.frameCount += 0.1;
 
+      //draw the ticker for the year
       this.drawTicker(this.year);
     } else {
       this.year = this.minYear;
     };
   };
 
+  this.drawTicks = function(){
+    //draw x-ticks
+    let xTicks = [];
+
+    //push thousands-values to xTicks array 
+    for(let i = this.layout.numXTickLabels; i >= 1; i--){
+      let xVal = ceil(this.maxVal/(1000*i)) * 1000;
+      xTicks.push(xVal);
+    }
+    //draw the tick/tick labels
+    for(let i = 0; i <= this.layout.numXTickLabels; i++){
+      drawXAxisTickLabel(xTicks[i], this.layout, this.mapValueToX.bind(this));
+    }
+  }
+
   this.drawTicker = function (ticker) {
     // draw title with integrated ticker for year 
     push();    
-      textSize(40);
+      textSize(32);
       textStyle(BOLD);
-      textAlign(RIGHT, CENTER);
+      textAlign(CENTER, CENTER);
       fill(0);
-      text('Value of Top Brands in ' + ticker, this.layout.rightMargin, this.layout.plotHeight());
+      text('Top Brands in ' + ticker, this.layout.plotWidth()/2, height - marginSize);
     pop();
   };
 
@@ -195,10 +205,10 @@ function BarChart() {
       //assign unique colors to each category
       if (category !== NaN) {
         if (colorScale[category]) {
-          let r = random(100, 220);
-          let g = random(95, 200);
-          let b = random(90, 255);
-          let c = color(r, g, b)
+          let c = randomColor(
+            100,220, //min/max of red
+            95,200,//min/max of green
+            90,255);//min/max of blue
           colorScale[category] = c;
         } else colorScale[category] = color(255, 0, 0);
       };
@@ -211,6 +221,11 @@ function BarChart() {
       dataArray[i] = arr;
     };
   };
+ 
+  this.mapValueToX = function (value){
+    //map value to x-coordinates
+    return map(value,0 , this.maxVal, this.layout.leftMargin, this.layout.rightMargin);
+  }
 
   this.mapValueToWidth = function (value) {
     //map value to width of graph

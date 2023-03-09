@@ -140,6 +140,14 @@ function invertColor(colour){
   return color(r,g,b);
 }
 
+function randomColor(minR, maxR, minG, maxG, minB, maxB){
+  //creates random colors from inputs of min.max of RGB
+  let r = random(minR, maxR);
+  let g = random(minG, maxG);
+  let b = random(minB, maxB);
+
+  return color(r,g,b);
+}
 function convertAngleToCoord(diameter, ang){
   //converts inputted angle to x-y-coordinates
   let radius = diameter/2;

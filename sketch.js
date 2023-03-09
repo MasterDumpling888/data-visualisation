@@ -31,7 +31,10 @@ function setup() {
   gallery.addVisual(new FoodInflation2021());
   gallery.addVisual(new BarChart());
   gallery.addVisual(new WorldMap());
-  gallery.addVisual(new WaffleChart())
+  gallery.addVisual(new WaffleChart());
+  gallery.addVisual(new DynaBubbleChart());
+
+
 }
 
 function draw() {
