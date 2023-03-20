@@ -3,14 +3,9 @@
 // a container for all the visualisations.
 var gallery;
 
-// preloads font
-function preload() {
-  font = loadFont('./assets/AvenirLTStd-Roman.otf');
-};
-
 function setup() {
   //set font for all graphs
-  textFont('Andale Mono')
+  textFont('Andale Mono');
 
   // Create a canvas to fill the content div from index.html.
   let c = createCanvas(1024, 576);
