@@ -148,6 +148,7 @@ function randomColor(minR, maxR, minG, maxG, minB, maxB){
 
   return color(r,g,b);
 }
+
 function convertAngleToCoord(diameter, ang){
   //converts inputted angle to x-y-coordinates
   let radius = diameter/2;

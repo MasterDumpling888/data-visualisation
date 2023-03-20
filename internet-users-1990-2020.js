@@ -108,6 +108,7 @@ function InternetUserCountryPop() {
   };
 
   this.destroy = function () {
+    //remove elements
     this.select.remove();
     this.colorPicker.remove();
     this.gridButton.remove();

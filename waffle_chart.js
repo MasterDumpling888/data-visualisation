@@ -229,9 +229,7 @@ class Waffle extends WaffleChart {
               fill(255);  
               noStroke();
               textStyle(BOLD);
-              text(mouseOn, mouseX + 10, mouseY + 10);
-              textAlign(CENTER, CENTER)
-              
+              text(mouseOn, mouseX + 10, mouseY + 10); 
             pop();
             return mouseOn;
           };
@@ -297,8 +295,10 @@ class Box extends WaffleChart {
   
   draw = function(){
     //draws box
+    push();
     stroke(0)
     fill(this.cat.colour);
     rect(this.x, this.y, this.w, this.h);
+    pop();
   };
 };

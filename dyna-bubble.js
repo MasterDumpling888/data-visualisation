@@ -4,14 +4,22 @@ class DynaBubbleChart {
     this.name = 'Dynamic Bubble Chart';
     this.id = 'dyna-bubble';
 
+    this.marginSize = 35;
+    
+    this.leftMargin = this.marginSize * 2;
+    this.topMargin = this.marginSize;
+    this.rightMargin = width - this.marginSize;
+    this.bottomMargin = height - this.marginSize * 2;
+
     this.bubbles = [];
     this.years = [];
     this.yearButtons = [];
-    this.maxAmt = 0;
+    this.maxAmt;
   };
+
   preload = function(){
     let self = this;
-    this.data = loadTable('./data/foodData.csv','csv', ' header',
+    this.data = loadTable('./data/foodData.csv','csv', 'header',
     
     function(){
       self.loaded = true;
@@ -21,20 +29,15 @@ class DynaBubbleChart {
   setup = function(){
     let rows = this.data.getRows();
     let numColumns = this.data.getColumnCount();
-    this.button = createSelect();
-    this.button.position(width/2,height/4);
+    this.select = createSelect();
+    this.select.position(width/2 - 40,height/4);
 
     for(let i = 5; i < numColumns; i++){
-      this.button.option(this.data.columns[i]);
-      // let y = this.data.columns[i];
-      // this.years.push(y);
-      // this.button.parent('years');
-      // this.button.mousePressed(function(){
-      //   this.changeYear(this.elt.value)
-      // })
-      // this.yearButtons.push(this.button);
+      let y = this.data.columns[i];
+      this.select.option(y);
+      this.years.push(y);
     }
-
+  
     this.maxAmt = 0;
 
     for(let i = 0; i < rows.length; i++){
@@ -42,7 +45,7 @@ class DynaBubbleChart {
         let bub = new Bubble(rows[i].get(0), this.maxAmt);
 
         for(let j = 5; j < numColumns; j++){
-          if(rows[i].get(j) != ''){
+          if(rows[i].get(j) != ""){
             let n = rows[i].getNum(j);
             if(n > this.maxAmt){
               this.maxAmt = n;
@@ -55,7 +58,7 @@ class DynaBubbleChart {
         this.bubbles.push(bub);
       }
     }
-    for(let i = 0; i < this.bubbles.length; i++){
+    for(let i = 1; i < this.bubbles.length; i++){
       this.bubbles[i].setData(0);
     }
   }
@@ -63,21 +66,40 @@ class DynaBubbleChart {
   changeYear = function (year){
     let yr = this.years.indexOf(year);
 
-    for(let i = 0; i < this.bubbles.length; i++){
+    for(let i = 1; i < this.bubbles.length; i++){
       this.bubbles[i].setData(yr);
     }
   }
+  
+  destroy = function(){
+    this.select.remove();
+    this.bubbles = [];
+  }
 
   draw = function(){
-    push();
-    translate(width/2,height/2);
+
+    //updates the graph according to year selected
+    this.changeYear(this.select.value());
+    
     for(let i = 0; i < this.bubbles.length; i++){
-      this.bubbles[i].update(this.bubbles);
-      this.bubbles[i].draw();
-    }
-    pop();
+      this.bubbles[i].update(this.bubbles, mouseX, mouseY);
+      this.bubbles[i].draw(i);
+      this.bubbles[i].mousePlay(mouseX, mouseY);
+    }   
+    this.drawInstruc();
+  }
+
+  drawInstruc = function(){
+    //draw instructions
+    push();
+    fill(0);
+    textAlign(LEFT, CENTER);
+    textSize(12)
+    text('Hover over the bubbles to make them grow!\nClick them to make them pop!' , this.leftMargin, this.topMargin + 50);
+    pop()
   }
 }
+
 class Bubble extends DynaBubbleChart {
   constructor(name, maxAmt){
     super(name, maxAmt);
@@ -87,20 +109,17 @@ class Bubble extends DynaBubbleChart {
 
     this.size = 20;
     this.targetSize = 20;
-    this.pos = createVector(0,0);
+    this.pos = createVector(width/2, height/2); //position of bubbles (hardcoded so no complications with mousePlay)
     this.direction = createVector(0,0);
-    this.colour = randomColor(0,255,0,255,0,255);
+    this.colour = randomColor(100, 255, 100, 255, 100, 255);
     this.dat = [];
   };
 
   draw = function (){
     push();
-    textAlign(CENTER);
     noStroke();
     fill(this.colour);
     ellipse(this.pos.x, this.pos.y, this.size);
-    fill(0);
-    text(this.name, this.pos.x, this.pos.y);
     pop();
   }
 
@@ -110,7 +129,7 @@ class Bubble extends DynaBubbleChart {
       if(bub[i].name != this.name){
         let vector = p5.Vector.sub(this.pos, bub[i].pos);
         let d = vector.mag();
-
+        
         if(d < this.size/2 + bub[i].size/2){
           if(d > 0){
             this.direction.add(vector);
@@ -125,15 +144,44 @@ class Bubble extends DynaBubbleChart {
     this.direction.mult(2);
     
     this.pos.add(this.direction);
-
+    let conSize =  constrain(this.size, min(this.targetSize), max(this.targetSize));
     if(this.size < this.targetSize){
       this.size++;
-    } else if(this.size > this.targetSize){
-      this.size--;
-    }
+    } 
   }
-
+  
   setData = function(i){
-    this.targetSize = map(this.dat[i], 0, this.maxAmt, 20, 250);
+    this.targetSize = map(this.dat[i], 0, this.maxAmt, 20, 150);
+  }
+  
+  mousePlay = function(mouseX, mouseY){
+    let d = dist(this.pos.x, this.pos.y, mouseX, mouseY);
+    let rad = this.size/2;
+
+    //checks if mouse is over the bubble
+    if(d < rad){
+      // makes text to show which bubble mouse is over
+      push();
+      textSize(12);
+      let txtW = textWidth(this.name);
+      noStroke();
+      fill(this.colour);
+      rectMode(CENTER)
+      rect(width/2, this.bottomMargin + 30, txtW + 20, 20, 10);
+      fill(0);
+      textAlign(CENTER, CENTER);
+      text(this.name, width/2, this.bottomMargin + 30);
+      pop();
+
+      //increase size of bubble that mouse is over
+      if(this.size < this.targetSize + 10){
+        this.size ++;
+      } 
+      
+      //pops the bubble if mouse over it is pressed
+      if (mouseIsPressed){
+        this.size = 0;
+      }
+    }
   }
 }

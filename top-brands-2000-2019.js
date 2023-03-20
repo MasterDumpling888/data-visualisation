@@ -61,29 +61,39 @@ function BarChart() {
 
   this.setup = function () {
     noStroke();
+    
+    // Create checkbox for the grid of graph
+    this.gridButton = createCheckbox('Grid', this.layout.grid);
+    
+    //Set position of checkbox
+    this.gridButton.position(width,height/4);
+    
+    //call parse data when graph is accessed by user
+    this.parseData();
+    
+    //set min/max year
+    this.minYear = 2000;
+    this.maxYear = 2019;
+    this.year = this.minYear; //set starting year to minYear
+    
+    //set maxVal
+    this.maxVal = dataArray[this.maxYear][0].value;
+    this.minVal = dataArray[this.minYear][this.layout.numBrands - 1].value
+    
     //count the number of frames drawn since the visualisation started so that we can animate the chart
     //set controlled frame count
     this.frameCount = 0;
     //set frame rate
     this.frameRate = 15;
-
-    //call parse data when graph is accessed by user
-    this.parseData();
-
-    //set min/max year
-    this.minYear = 2000;
-    this.maxYear = 2019;
-    this.year = this.minYear; //set starting year to minYear
-
-    //set maxVal
-    this.maxVal = dataArray[this.maxYear][0].value;
-    this.minVal = dataArray[this.minYear][this.layout.numBrands - 1].value
   };
 
   this.destroy = function () {
     dataArray = {}; //reset the dataArray object when graph is accessed more than once
     //so dataArray won't keep growing
     colorScale = {}; //reset colorScale array object when graph is access more than once
+
+    //remove element
+    this.gridButton.remove();
   };
 
   this.draw = function () {
@@ -92,6 +102,13 @@ function BarChart() {
     if (!this.loaded) {
       alert('Data not yet loaded');
       return;
+    }
+
+    //checks grid // Coding Train
+    if(this.gridButton.checked()){
+      this.layout.grid = true;
+    } else {
+      this.layout.grid = false;
     }
 
     let barHeight = this.layout.plotHeight() / this.layout.numBrands; //set the thickness of each bar
@@ -206,9 +223,9 @@ function BarChart() {
       if (category !== NaN) {
         if (colorScale[category]) {
           let c = randomColor(
-            100,220, //min/max of red
-            95,200,//min/max of green
-            90,255);//min/max of blue
+            100, 220,  //min/max of red
+            95, 200, //min/max of green
+            90, 255);  //min/max of blue
           colorScale[category] = c;
         } else colorScale[category] = color(255, 0, 0);
       };
