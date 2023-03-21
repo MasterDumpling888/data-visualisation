@@ -66,7 +66,7 @@ function BarChart() {
     this.gridButton = createCheckbox('Grid', this.layout.grid);
     
     //Set position of checkbox
-    this.gridButton.position(width,height/4);
+    this.gridButton.position(width, height/4.5);
     
     //call parse data when graph is accessed by user
     this.parseData();
@@ -222,10 +222,7 @@ function BarChart() {
       //assign unique colors to each category
       if (category !== NaN) {
         if (colorScale[category]) {
-          let c = randomColor(
-            100, 220,  //min/max of red
-            95, 200, //min/max of green
-            90, 255);  //min/max of blue
+          let c = randomColor(100, 255, 100, 255, 100, 255);
           colorScale[category] = c;
         } else colorScale[category] = color(255, 0, 0);
       };

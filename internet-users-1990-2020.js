@@ -76,7 +76,7 @@ function InternetUserCountryPop() {
     this.select = createSelect();
 
     // set the select position
-    this.select.position(width/2, height/4);
+    this.select.position(width/1.6, height/4.5);
 
     // Populate select options with country names
     for (let i = 1; i < this.data.getColumnCount(); i++) {
@@ -88,13 +88,13 @@ function InternetUserCountryPop() {
     this.colorPicker = createColorPicker(color(60, 236, 177));
 
     // Set the color picker position
-    this.colorPicker.position(width/1.6, height/4);
+    this.colorPicker.position(width/1.2, height/4.5);
 
     // Create checkbox for the grid of graph
     this.gridButton = createCheckbox('Grid',this.layout.grid);
     
     //Set position of checkbox
-    this.gridButton.position(width, height/4);
+    this.gridButton.position(width, height/4.5);
    
     // Find min and max percentage
     this.minPercent = 0;

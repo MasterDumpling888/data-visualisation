@@ -9,7 +9,7 @@ function setup() {
 
   // Create a canvas to fill the content div from index.html.
   let c = createCanvas(1024, 576);
-  c.position(400, 125)
+  c.position(450, 120)
   c.parent('app');
 
 
@@ -33,8 +33,20 @@ function setup() {
 }
 
 function draw() {
-  background(255);
+  welcomeTxt();
   if (gallery.selectedVisual != null) {
+    clear()
+    background(255);
     gallery.selectedVisual.draw();
   }
+}
+
+function welcomeTxt(){
+  background(255);
+  push();
+    textAlign(CENTER)
+    textStyle(BOLD);
+    textSize(48);
+    text('welcome :)', width/2, height/2);
+  pop();
 }

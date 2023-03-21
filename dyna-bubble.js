@@ -30,7 +30,7 @@ class DynaBubbleChart {
     let rows = this.data.getRows();
     let numColumns = this.data.getColumnCount();
     this.select = createSelect();
-    this.select.position(width/2 - 40,height/4);
+    this.select.position(width/2, height/4.5);
 
     for(let i = 5; i < numColumns; i++){
       let y = this.data.columns[i];
@@ -144,7 +144,6 @@ class Bubble extends DynaBubbleChart {
     this.direction.mult(2);
     
     this.pos.add(this.direction);
-    let conSize =  constrain(this.size, min(this.targetSize), max(this.targetSize));
     if(this.size < this.targetSize){
       this.size++;
     } 

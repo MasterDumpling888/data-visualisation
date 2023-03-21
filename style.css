@@ -1,3 +1,7 @@
+canvas {
+    border-radius: 24px;
+}
+
 body {
     font-family: 'Andale Mono';
     font-weight: 400;

@@ -83,7 +83,7 @@ function FoodInflation2021() {
     this.frameRate = 0.3;
     
     this.gridButton = createCheckbox('Grid', this.layout.grid);
-    this.gridButton.position(width, height/4);//positions according to HTML size
+    this.gridButton.position(width, height/4.5);//positions according to HTML size
   };
   
   this.destroy = function(){
