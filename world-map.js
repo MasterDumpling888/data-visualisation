@@ -8,7 +8,80 @@ function WorldMap() {
   this.id = 'world-map'
 
   this.size = 0.5
-  let countryPolygons = [];
+  let countryObj = {};
+
+  this.loaded = false;
+
+  this.preload = function () {
+    //preload data
+    let self = this;
+    //load data set
+    this.data = loadTable(
+      './data/choropleth/population-data.csv', 'csv', 'header',
+
+      //callback, sets this.loaded to true when data is finished loading
+      function () {
+        self.loaded = true;
+      });
+  };
+
+  this.setup = function () {
+    for (let i = 0; i < country.length; i++) {
+      if (!countryObj[country[i].name]) countryObj[country[i].name] = [];
+      countryObj[country[i].name] = (this.convertPathToPoly(country[i].vertexPoint));
+    };
+
+  };
+
+  this.destroy = function () {
+    countryObj = {};
+  };
+
+  this.draw = function () {
+    let collision = false;
+    stroke(255);
+    strokeWeight(0.75);
+    for (const country in countryObj) {
+      fill('rgba(0,255,100, 0.5)');
+      if (!collision && mouseIsPressed) {
+        collision = countryObj[country].some(poly => this.collisionDetection(poly, mouseX, mouseY));
+        if (collision) {
+          fill(255, 25, 10);
+          let population = this.findData(country);
+          console.log('Mouse is pressed on ', country, ' with population ', population);
+        }
+      }
+      for (const poly of countryObj[country]) {
+        beginShape();
+        for (const vert of poly) {
+          vertex(...vert);
+        }
+        endShape();
+      }
+
+    }
+  }
+
+  this.fillColor = function (key) {
+    // use if-else to assign color fill based on key value
+    if (key < 500000000) {
+      return endColor;
+    } else if (key < 100000000) {
+      return lerp(startColor, endColor, 0.88)
+    } else return startColor
+  }
+
+  this.findData = function (country) {
+    let index = -1;
+    for (let i = 0; i < this.data.getRowCount(); i++) {
+      if (this.data.getString(i, 'Country') == country) {
+        index = i;
+        break;
+      }
+    }
+    console.log(this.data.getString(index, 0));
+    return this.data.getNum(index, '1960');
+  }
 
   this.convertPathToPoly = function (path) {
     let pointCoord = [0, 0];
@@ -33,46 +106,7 @@ function WorldMap() {
         pointCoord[1] += node[1] * this.size;
       }
     }
-
     return poly;
-  };
-
-  this.setup = function () {
-    for (let i = 0; i < country.length; i++) {
-      countryPolygons.push(this.convertPathToPoly(country[i].vertexPoint))
-    };
-
-  };
-
-  this.draw = function () {
-    push();
-    translate(0, 0);
-
-    let collision = false;
-    for (let i = 0; i < countryPolygons.length; i++) {
-      fill(100);
-      if (!collision && mouseIsPressed) {
-        collision = countryPolygons[i].some(poly => this.collisionDetection(poly, mouseX, mouseY));
-        if (collision) {
-          fill('blue');
-        }
-      }
-    }
-
-    stroke(255);
-    strokeWeight(1);
-    for (let i = 0; i < countryPolygons.length; i++) {
-      fill(100);
-      for (const poly of countryPolygons[i]) {
-        beginShape();
-        for (const vert of poly) {
-          vertex(...vert);
-        }
-        endShape()
-      }
-    }
-
-    pop();
   }
 
   this.collisionDetection = function (polygon, x, y) {
@@ -81,7 +115,6 @@ function WorldMap() {
     for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
       // Compute the slope of the edge
       let slope = (polygon[j][1] - polygon[i][1]) / (polygon[j][0] - polygon[i][0]);
-
       // If the mouse is positioned within the vertical bounds of the edge
       if (((polygon[i][1] > y) != (polygon[j][1] > y)) &&
         // And it is far enough to the right that a horizontal line from the
@@ -94,5 +127,4 @@ function WorldMap() {
     }
     return c;
   }
-
 }
