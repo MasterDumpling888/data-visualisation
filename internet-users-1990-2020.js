@@ -64,7 +64,6 @@ function InternetUserCountryPop() {
     //font settings
     textSize(16);
     textAlign(CENTER);
-
     //set rect mode
     rectMode(CORNER)
 

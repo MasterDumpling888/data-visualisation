@@ -225,7 +225,7 @@ class Waffle extends WaffleChart {
               textSize(10);
               let textW = textWidth(mouseOn);
               textAlign(LEFT, CENTER);
-              rect(mouseX, mouseY, textW + 20, 20);
+              rect(mouseX, mouseY, textW + 20, 20, 5);
               fill(255);  
               noStroke();
               textStyle(BOLD);
