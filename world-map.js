@@ -9,6 +9,8 @@ function WorldMap() {
 
   this.size = 0.5
   let countryObj = {};
+  let startColor = color(218, 165, 32);
+  let endColor = color(72, 61, 139);
 
   this.loaded = false;
 
@@ -42,15 +44,16 @@ function WorldMap() {
     stroke(255);
     strokeWeight(0.75);
     for (const country in countryObj) {
-      fill('rgba(0,255,100, 0.5)');
+      let population = this.findData(country);
+      fill(this.fillColor(population));
       if (!collision && mouseIsPressed) {
         collision = countryObj[country].some(poly => this.collisionDetection(poly, mouseX, mouseY));
         if (collision) {
           fill(255, 25, 10);
-          let population = this.findData(country);
           console.log('Mouse is pressed on ', country, ' with population ', population);
         }
       }
+
       for (const poly of countryObj[country]) {
         beginShape();
         for (const vert of poly) {
@@ -64,11 +67,13 @@ function WorldMap() {
 
   this.fillColor = function (key) {
     // use if-else to assign color fill based on key value
-    if (key < 500000000) {
+    if (key > 500000000) {
       return endColor;
-    } else if (key < 100000000) {
+    } else if (key > 100000000) {
       return lerp(startColor, endColor, 0.88)
-    } else return startColor
+    } else if (key > 50000000) {
+      return lerp(startColor, endColor, 0.5)
+    } else return startColor;
   }
 
   this.findData = function (country) {
@@ -79,7 +84,7 @@ function WorldMap() {
         break;
       }
     }
-    console.log(this.data.getString(index, 0));
+    // console.log(this.data.getString(index, 0));
     return this.data.getNum(index, '1960');
   }
 
