@@ -164,10 +164,12 @@ function FoodInflation2021() {
   };
   this.drawMonthLabel = function (value, y) {
     //draws labels for each arc
+    push();
     fill(0)
     noStroke();
     textAlign(RIGHT, CENTER);
     text(value + ' -', this.layout.arcX() - 10, y);
+    pop();
   };
 
   this.drawValues = function (value, dia) {

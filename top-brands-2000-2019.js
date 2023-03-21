@@ -60,6 +60,9 @@ function BarChart() {
   };
 
   this.setup = function () {
+    //font settings
+    textSize(12);
+    textAlign(RIGHT, CENTER);
     noStroke();
     
     // Create checkbox for the grid of graph
@@ -159,7 +162,6 @@ function BarChart() {
             fill(255);
             stroke(0);
             textAlign(RIGHT, CENTER);
-            textSize(12);
             textStyle(NORMAL);
             text(data1[i].name, this.layout.leftMargin + w - 10, yPos + 10);
             text(dispValue, this.layout.leftMargin + w - 10, yPos + 25);
