@@ -1,16 +1,9 @@
 function WorldMap() {
-  // this.x = x;
-  // this.y = y;
-  // this.size = size;
-  // this.borderColor = borderColor;
-  // this.fill = fill;
   this.name = 'World Population';
   this.id = 'world-map'
 
   this.size = 0.5
   let countryObj = {};
-  let startColor = color(218, 165, 32);
-  let endColor = color(72, 61, 139);
 
   this.loaded = false;
 
@@ -21,7 +14,6 @@ function WorldMap() {
     this.data = loadTable(
       './data/choropleth/population-data.csv', 'csv', 'header',
 
-      //callback, sets this.loaded to true when data is finished loading
       function () {
         self.loaded = true;
       });
@@ -33,23 +25,49 @@ function WorldMap() {
       countryObj[country[i].name] = (this.convertPathToPoly(country[i].vertexPoint));
     };
 
+    // Create a select DOM element: referenced from P5 reference page (search string: createSelect)
+    this.select = createSelect();
+
+    // set the select position
+    this.select.position(width/1.6, height/4.5);
+
+    // Populate select options with country names
+    for (let i = 1; i < this.data.getColumnCount(); i++) {
+      this.select.option(this.data.columns[i]);
+    }
+
+    // Create color picker for graph fill: referenced from P5 reference page (search string: createColorPicker)
+    //set default colour to 60, 236, 177
+    this.colorPicker = createColorPicker(color(128, 255,219));
+
+    // Set the color picker position
+    this.colorPicker.position(width/1.2, height/4.5);
   };
 
   this.destroy = function () {
+    this.colorPicker.remove();
+    this.select.remove()
     countryObj = {};
   };
 
   this.draw = function () {
     let collision = false;
+    let c = this.colorPicker.color();
     stroke(255);
     strokeWeight(0.75);
     for (const country in countryObj) {
       let population = this.findData(country);
-      fill(this.fillColor(population));
+      fill(this.fillColor(population, c));
       if (!collision && mouseIsPressed) {
         collision = countryObj[country].some(poly => this.collisionDetection(poly, mouseX, mouseY));
         if (collision) {
           fill(255, 25, 10);
+          push();
+          fill(0)
+          textSize(24);
+          textAlign(CENTER, CENTER);
+          text(country + 'Population:' + population, width/2, height + 200)
+          pop();
           console.log('Mouse is pressed on ', country, ' with population ', population);
         }
       }
@@ -64,16 +82,24 @@ function WorldMap() {
 
     }
   }
+  this.mapColour = function(colour){
+    return map(colour,minpop)
+  }
 
-  this.fillColor = function (key) {
-    // use if-else to assign color fill based on key value
-    if (key > 500000000) {
-      return endColor;
-    } else if (key > 100000000) {
-      return lerp(startColor, endColor, 0.88)
-    } else if (key > 50000000) {
-      return lerp(startColor, endColor, 0.5)
-    } else return startColor;
+  this.fillColor = function (pop, colour) {
+    // use if-else to assign colour fill based on population
+    let invColour = invertColor(colour); //invert the color from the color picker
+    if (pop > 500000000) {
+      return invColour;
+    } else if (pop > 100000000) {
+      return lerpColor(invColour, colour, 0.3)
+    } else if (pop > 30000000) {
+      return lerpColor(invColour, colour, 0.45)
+    } else if (pop > 10000000) {
+      return lerpColor(invColour, colour, 0.65)
+    } else if (pop > 1000000) {
+      return lerpColor(invColour, colour, 0.80)
+    } else return colour;
   }
 
   this.findData = function (country) {
@@ -84,8 +110,8 @@ function WorldMap() {
         break;
       }
     }
-    // console.log(this.data.getString(index, 0));
-    return this.data.getNum(index, '1960');
+    //return population data of year selected
+    return this.data.getNum(index, this.select.value());
   }
 
   this.convertPathToPoly = function (path) {

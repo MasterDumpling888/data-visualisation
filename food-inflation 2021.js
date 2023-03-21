@@ -195,6 +195,7 @@ function FoodInflation2021() {
   this.drawTitle = function () {
     //draws title
     push();
+    fill(0);
     textAlign(LEFT, CENTER);
     textSize(20);
     text(this.name, this.layout.leftMargin, this.layout.topMargin);
