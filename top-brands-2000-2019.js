@@ -91,11 +91,11 @@ function BarChart() {
   };
 
   this.destroy = function () {
-    dataArray = {}; //reset the dataArray object when graph is accessed more than once
+    dataArray = {}; //reset the dataArray array object when graph is accessed more than once
     //so dataArray won't keep growing
     colorScale = {}; //reset colorScale array object when graph is access more than once
 
-    //remove element
+    //remove DOM element
     this.gridButton.remove();
   };
 

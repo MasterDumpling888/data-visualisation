@@ -1,25 +1,40 @@
-function WorldMap() {
+/**reference:
+ * D3: Choropleth: https://observablehq.com/@d3/choropleth
+ * World Map with Mouse Over: https://editor.p5js.org/Kumu-Paul/sketches/8awPJGZQ4
+ */ 
+// some of the countries (i.e Taiwan) will have a population of 0 as their population was not included in the data
+function WorldPop() {
+  //name for visualisation
   this.name = 'World Population';
+  //visualisation ID
   this.id = 'world-map'
+  
+  //scalar for size of map
+  this.size = 0.5; 
 
-  this.size = 0.5
+  //declare array of objects
   let countryObj = {};
 
+  //property of data's load status
   this.loaded = false;
 
   this.preload = function () {
     //preload data
     let self = this;
+    
     //load data set
     this.data = loadTable(
       './data/choropleth/population-data.csv', 'csv', 'header',
 
+      //callback, sets this.loaded to true when data is finished loading  
       function () {
         self.loaded = true;
       });
   };
 
   this.setup = function () {
+
+    //populate CountryObj array
     for (let i = 0; i < country.length; i++) {
       if (!countryObj[country[i].name]) countryObj[country[i].name] = [];
       countryObj[country[i].name] = (this.convertPathToPoly(country[i].vertexPoint));
@@ -29,7 +44,7 @@ function WorldMap() {
     this.select = createSelect();
 
     // set the select position
-    this.select.position(width/1.6, height/4.5);
+    this.select.position(width/2, height/4.5);
 
     // Populate select options with country names
     for (let i = 1; i < this.data.getColumnCount(); i++) {
@@ -37,41 +52,45 @@ function WorldMap() {
     }
 
     // Create color picker for graph fill: referenced from P5 reference page (search string: createColorPicker)
-    //set default colour to 60, 236, 177
+    //set default colour to 128, 255 ,219
     this.colorPicker = createColorPicker(color(128, 255,219));
 
     // Set the color picker position
-    this.colorPicker.position(width/1.2, height/4.5);
+    this.colorPicker.position(width/1.8, height/4.5);
   };
 
   this.destroy = function () {
+    countryObj = {}; //reset the countryObj array object when graph is accessed more than once
+
+    //remove DOM elements
     this.colorPicker.remove();
     this.select.remove()
-    countryObj = {};
   };
 
   this.draw = function () {
-    let collision = false;
+    //draw map
+    //set variables
+    let mouseOn = false;
     let c = this.colorPicker.color();
+
+    //set strokes for the country polygons
     stroke(255);
     strokeWeight(0.75);
+
+    //colours countries according to population
+    //and checks if mouse is over a country and colours it red
     for (const country in countryObj) {
       let population = this.findData(country);
-      fill(this.fillColor(population, c));
-      if (!collision && mouseIsPressed) {
-        collision = countryObj[country].some(poly => this.collisionDetection(poly, mouseX, mouseY));
-        if (collision) {
-          fill(255, 25, 10);
-          push();
-          fill(0)
-          textSize(24);
-          textAlign(CENTER, CENTER);
-          text(country + 'Population:' + population, width/2, height + 200)
-          pop();
-          console.log('Mouse is pressed on ', country, ' with population ', population);
+      fill(this.fillColor(population, c)); // colours country to population
+      if (!mouseOn) { //checks if mouse is over a country
+        mouseOn = countryObj[country].some(poly => this.mouseOver(poly, mouseX, mouseY));
+        if (mouseOn) { 
+          fill(255, 25, 10); //changes it to red
+          this.drawInfo(country, population); //draws country info
         }
       }
 
+      //draws the country polygons using vertex
       for (const poly of countryObj[country]) {
         beginShape();
         for (const vert of poly) {
@@ -79,27 +98,67 @@ function WorldMap() {
         }
         endShape();
       }
-
     }
   }
-  this.mapColour = function(colour){
-    return map(colour,minpop)
+
+  this.drawInfo = function(country, population){
+    //draw population info of country mouse is over
+    push();
+      fill(0)
+      textSize(24);
+      textAlign(CENTER, CENTER);
+      text(country + ' has a population of ' + population, width/2, height - 50);
+    pop();
   }
 
+  this.drawLegendBox = function(colour, x, p){
+    //draw the legend box
+    push();
+      let y = 10;
+      let w = 40;
+      let h = 20;
+      noStroke();
+      fill(colour);
+      rect(x, y, w, h);
+      textAlign(CENTER, TOP);
+      textSize(10);
+      text(p, x + w/2, y + h);
+    pop();
+  }
+ 
   this.fillColor = function (pop, colour) {
     // use if-else to assign colour fill based on population
+    //and completes the drawing of the legend
     let invColour = invertColor(colour); //invert the color from the color picker
+    let x = width - 300;
     if (pop > 500000000) {
+      this.drawLegendBox(invColour, x, '>500m');
       return invColour;
     } else if (pop > 100000000) {
-      return lerpColor(invColour, colour, 0.3)
+      this.drawLegendBox(lerpColor(
+        invColour, colour, 0.3), 
+        x + 40, '100m');
+      return lerpColor(invColour, colour, 0.3);
     } else if (pop > 30000000) {
+      this.drawLegendBox(lerpColor(
+        invColour, colour, 0.45), 
+        x + 80, '30m');
       return lerpColor(invColour, colour, 0.45)
     } else if (pop > 10000000) {
+      this.drawLegendBox(lerpColor(
+        invColour, colour, 0.65), 
+        x + 120, '10m');
       return lerpColor(invColour, colour, 0.65)
     } else if (pop > 1000000) {
+      this.drawLegendBox(lerpColor(
+        invColour, colour, 0.80), 
+        x + 160, '1m');
       return lerpColor(invColour, colour, 0.80)
-    } else return colour;
+    } else {
+      this.drawLegendBox(colour, 
+        x + 200, '0m<');
+      return colour;
+    }
   }
 
   this.findData = function (country) {
@@ -115,6 +174,7 @@ function WorldMap() {
   }
 
   this.convertPathToPoly = function (path) {
+    //connects the path to create polygon
     let pointCoord = [0, 0];
     let poly = [];
     let currentPoly = [];
@@ -140,22 +200,22 @@ function WorldMap() {
     return poly;
   }
 
-  this.collisionDetection = function (polygon, x, y) {
-    let c = false;
-    // for each edge of the polygon
+  this.mouseOver = function (polygon, x, y) {
+    let o = false;
+    // for every edge of the country's polygon
     for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      
       // Compute the slope of the edge
       let slope = (polygon[j][1] - polygon[i][1]) / (polygon[j][0] - polygon[i][0]);
-      // If the mouse is positioned within the vertical bounds of the edge
+      
+      // if the mouse is pass vertical bounds of the polygon and if mouse is pass horizontal bounds then return true
       if (((polygon[i][1] > y) != (polygon[j][1] > y)) &&
-        // And it is far enough to the right that a horizontal line from the
-        // left edge of the screen to the mouse would cross the edge
         (x > (y - polygon[i][1]) / slope + polygon[i][0])) {
 
-        // Flip the flag
-        c = !c;
+        // make o true
+        o = !o;
       }
     }
-    return c;
+    return o;
   }
 }

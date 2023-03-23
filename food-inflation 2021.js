@@ -79,28 +79,40 @@ function FoodInflation2021() {
     this.minValue = 0;
     this.maxValue = max(this.data.getColumn('Value'));
     
+    //count the number of frames drawn since the visualisation started so that we can animate the chart
+    //set controlled frame count
     this.frameCount = 0;
+    //set frame rate
     this.frameRate = 0.3;
     
+    // Create checkbox for the grid of graph
     this.gridButton = createCheckbox('Grid', this.layout.grid);
-    this.gridButton.position(width, height/4.5);//positions according to HTML size
+
+    //Set position of checkbox
+    this.gridButton.position(width, height/4.5);
+    
   };
   
   this.destroy = function(){
+    //remove DOM elements
     this.gridButton.remove();
   };
 
   this.draw = function () {
+    //draw graph
+    //checks if data is loaded and if not alerts
     if (!this.loaded) {
       alert("Data hasn't loaded!");
       return;
     }
 
+    //checks grid // Coding Train
     if(this.gridButton.checked()){
       this.layout.grid = true;
     } else {
       this.layout.grid = false;
     }
+
     //draw the grid
     this.drawGrid();
     for (let i = 0; i < this.data.getRowCount(); i++) {
@@ -113,17 +125,16 @@ function FoodInflation2021() {
       let diameter = this.layout.circSize - (i * 40); //diameter of arcs; 500 is base value; 40 is scalar
       let textYInc = this.layout.textY() + (i * 20.25); //y-coordinates for labels of arcs
 
-      
       this.drawTitle();
       this.drawMonthLabel(current.month, textYInc); // draw month labels
       
       this.drawArcs(current.value, i, diameter)
       if(this.mapToAngle(false, current.value, this.frameCount) >= this.mapToAngle(true, this.maxValue)){
         this.drawValues(current.value, diameter);//draw legend inflation values
-
       } 
-      
     };
+
+    //increase frameCount by frameRate after every draw-loop
     this.frameCount += this.frameRate;
   };
   
