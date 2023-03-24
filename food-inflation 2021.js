@@ -74,7 +74,7 @@ function FoodInflation2021() {
     //setup default text attributes
     textSize(10);
     textAlign(CENTER);
-    
+
     //set min/max values 
     this.minValue = 0;
     this.maxValue = max(this.data.getColumn('Value'));
@@ -141,16 +141,16 @@ function FoodInflation2021() {
   this.drawArcs = function(value, i , dia){
     //draw animated arcs
     push();
-    //declare variables
-    let start = this.layout.arcStart; // arc's starting point
-    let grow = this.mapToAngle(false, value, this.frameCount); // growth of arc according to frameCount
-    let maxArc = constrain(grow, start, this.mapToAngle(true, value)); //make sure arcs don't go pass percent value
+      //declare variables
+      let start = this.layout.arcStart; // arc's starting point
+      let grow = this.mapToAngle(false, value, this.frameCount); // growth of arc according to frameCount
+      let maxArc = constrain(grow, start, this.mapToAngle(true, value)); //make sure arcs don't go pass percent value
 
-    //draw arcs
-    stroke(this.colourArray[i]);
-    strokeWeight(10);
-    noFill();
-    arc(this.layout.arcX(), this.layout.arcY() + (i * 0.5), dia, dia, start, maxArc); //reference: Coding Train
+      //draw arcs
+      stroke(this.colourArray[i]);
+      strokeWeight(10);
+      noFill();
+      arc(this.layout.arcX(), this.layout.arcY() + (i * 0.5), dia, dia, start, maxArc); //reference: Coding Train
     pop()
   }
 
@@ -159,16 +159,16 @@ function FoodInflation2021() {
       if(this.layout.grid){
         //draw circle grid
         push();
-        stroke(200);
-        noFill();
-  
-        //declare diameter, convert vertex points for line
-        let d = this.layout.circSize + marginSize;
-        let c = convertAngleToCoord(d, PI + (i * QUARTER_PI)); // draw ticks every 45degs
-  
-        //draw grid
-        ellipse(this.layout.arcX(), this.layout.arcY(), d, d);
-        line(this.layout.arcX(), this.layout.arcY(), c.x, c.y);
+          stroke(200);
+          noFill();
+    
+          //declare diameter, convert vertex points for line
+          let d = this.layout.circSize + marginSize;
+          let c = convertAngleToCoord(d, PI + (i * QUARTER_PI)); // draw ticks every 45degs
+    
+          //draw grid
+          ellipse(this.layout.arcX(), this.layout.arcY(), d, d);
+          line(this.layout.arcX(), this.layout.arcY(), c.x, c.y);
         pop();
       };
     };
@@ -176,40 +176,38 @@ function FoodInflation2021() {
   this.drawMonthLabel = function (value, y) {
     //draws labels for each arc
     push();
-    fill(0)
-    noStroke();
-    textAlign(RIGHT, CENTER);
-    text(value + ' -', this.layout.arcX() - 10, y);
+      fill(0)
+      noStroke();
+      textAlign(RIGHT, CENTER);
+      text(value + ' -', this.layout.arcX() - 10, y);
     pop();
   };
 
   this.drawValues = function (value, dia) {
     //draw legend for inflation percent increase
     push();
-    
-    let coord = convertAngleToCoord(dia, this.mapToAngle(true, value));
+      let coord = convertAngleToCoord(dia, this.mapToAngle(true, value));
 
-    let x = coord.x;
-    let y = coord.y;
-    let alpha = this.frameCount * 2.5;
-    let roundedVal = round(value, 2);
+      let x = coord.x;
+      let y = coord.y;
+      let alpha = this.frameCount * 2.5;
+      let roundedVal = round(value, 2);
 
-    
-    fill(0, 0, 0, alpha);
-    noStroke();
-    textAlign(CENTER, CENTER)
-    textStyle(BOLD);
-    text(roundedVal, x, y);
+      fill(0, 0, 0, alpha);
+      noStroke();
+      textAlign(CENTER, CENTER)
+      textStyle(BOLD);
+      text(roundedVal, x, y);
     pop();
   };
 
   this.drawTitle = function () {
     //draws title
     push();
-    fill(0);
-    textAlign(LEFT, CENTER);
-    textSize(20);
-    text(this.name, this.layout.leftMargin, this.layout.topMargin);
+      fill(0);
+      textAlign(LEFT, CENTER);
+      textSize(20);
+      text(this.name, this.layout.leftMargin, this.layout.topMargin);
     pop();
   };
 

@@ -24,7 +24,7 @@ function WorldPop() {
     
     //load data set
     this.data = loadTable(
-      './data/choropleth/population-data.csv', 'csv', 'header',
+      './data/world-population/population-data.csv', 'csv', 'header',
 
       //callback, sets this.loaded to true when data is finished loading  
       function () {
@@ -69,6 +69,11 @@ function WorldPop() {
 
   this.draw = function () {
     //draw map
+    //checks if data is loaded and if not alerts
+    if (!this.loaded) {
+      alert('Data not yet loaded');
+      return;
+    }
     //set variables
     let mouseOn = false;
     let c = this.colorPicker.color();
@@ -156,7 +161,7 @@ function WorldPop() {
       return lerpColor(invColour, colour, 0.80)
     } else {
       this.drawLegendBox(colour, 
-        x + 200, '0m<');
+        x + 200, '>0m');
       return colour;
     }
   }

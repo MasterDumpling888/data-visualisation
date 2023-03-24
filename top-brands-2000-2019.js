@@ -155,12 +155,10 @@ function BarChart() {
           fill(colorScale[data1[i].category]);
           rect(this.layout.leftMargin, yPos, w, barHeight - gap);
           
-
           //draw name and value; moves with width of each bar
           let dispValue = ceil(data1[i].value + (valueNext - data1[i].value) / this.frameRate * this.frameCount);
           push();
-            fill(255);
-            stroke(0);
+            fill(0);
             textAlign(RIGHT, CENTER);
             textStyle(NORMAL);
             text(data1[i].name, this.layout.leftMargin + w - 10, yPos + 10);

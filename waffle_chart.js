@@ -36,15 +36,19 @@ class WaffleChart {
   };
 
   preload = function(){
+    //preload data
     let self = this;
+    //load data set
     this.data = loadTable('./data/finalData.csv', 'csv', 'header',
-      
+
+    //callback, sets this.loaded to true when data is finished loading
     function(){
       self.loaded = true;
     });
   };
   
   setup = function() {
+    //create arrays for days and values
     let days = ['Monday', 'Tuesday','Wednesday', 'Thursday','Friday','Saturday','Sunday'];
     
     let values = ['Take-away','Cooked from fresh','Ready meal', 'Ate out','Skipped meal', 'Left overs'];
@@ -98,16 +102,21 @@ class WaffleChart {
   drawTitle = function(){
     //draw title of chart
     push();
-    noStroke();
-    fill(0);
-    textSize(36)
-    textAlign(LEFT, TOP);
-    text('Preferred Meals on Days of the Week', this.waffX, this.topMargin);
+      noStroke();
+      fill(0);
+      textSize(36)
+      textAlign(LEFT, TOP);
+      text('Preferred Meals on Days of the Week', this.waffX, this.topMargin);
     pop();
   };
 
   draw = function(){
     //draw chart
+    //checks if data is loaded and if not alerts
+    if (!this.loaded) {
+      alert('Data not yet loaded');
+      return;
+    }
     this.drawTitle(); //draw title
     for(let i = 0; i < this.waffles.length;i++){
       //draw waffles for every day of the week
@@ -121,7 +130,7 @@ class WaffleChart {
 };
 
 class Waffle extends WaffleChart {
-  //child of WaffleChart; subclass constructor for waffle
+  //child of WaffleChart; subclass constructor for creating waffle
   constructor(
     x, y, w, h, 
     boxAcross, boxDown, 
@@ -241,11 +250,11 @@ class Waffle extends WaffleChart {
   drawDay = function(){
     //draw day of the week for each waffle
     push();
-    noStroke();
-    fill(0);
-    textSize(20);
-    textAlign(CENTER, TOP);
-    text(this.colHead, this.x + (this.w/2), this.y + this.h + 5);
+      noStroke();
+      fill(0);
+      textSize(20);
+      textAlign(CENTER, TOP);
+      text(this.colHead, this.x + (this.w/2), this.y + this.h + 5);
     pop();
   }
     
@@ -271,7 +280,7 @@ class Waffle extends WaffleChart {
   };
 };
 class Box extends WaffleChart {
-  //child of WaffleChart; subclass constructor for each box in the waffle
+  //child of WaffleChart; subclass constructor for creating each box in the waffle
   constructor(x, y, w, h, cat){
     //declare/initialise properties
     //calls on parent for passed properties
@@ -296,9 +305,9 @@ class Box extends WaffleChart {
   draw = function(){
     //draws box
     push();
-    stroke(0)
-    fill(this.cat.colour);
-    rect(this.x, this.y, this.w, this.h);
+      stroke(0)
+      fill(this.cat.colour);
+      rect(this.x, this.y, this.w, this.h);
     pop();
   };
 };

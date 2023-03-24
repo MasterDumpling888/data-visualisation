@@ -77,7 +77,7 @@ function InternetUserCountryPop() {
     // set the select position
     this.select.position(width/1.6, height/4.5);
 
-    // Populate select options with country names
+    // populate select options with countries
     for (let i = 1; i < this.data.getColumnCount(); i++) {
       this.select.option(this.data.columns[i]);
     }
