@@ -26,10 +26,6 @@ function TechDiversityRace() {
   };
 
   this.setup = function () {
-    if (!this.loaded) {
-      console.log("Data not yet loaded");
-      return;
-    }
 
     // Create a select DOM element.
     this.select = createSelect();
@@ -39,7 +35,6 @@ function TechDiversityRace() {
 
     // Fill the options with all company names.
     for (i = 1; i < this.data.getColumnCount(); i++) {
-      // console.log(this.data.getRows(i))
       this.select.option(this.data.columns[i]);
     }
   };

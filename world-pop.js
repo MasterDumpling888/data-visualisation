@@ -1,6 +1,7 @@
 /**reference:
  * D3: Choropleth: https://observablehq.com/@d3/choropleth
  * World Map with Mouse Over: https://editor.p5js.org/Kumu-Paul/sketches/8awPJGZQ4
+ * Stack Overflow - Formatting number with commas: https://stackoverflow.com/questions/2901102/how-to-format-a-number-with-commas-as-thousands-separators
  */ 
 // some of the countries (i.e Taiwan) will have a population of 0 as their population was not included in the data
 function WorldPop() {
@@ -108,11 +109,14 @@ function WorldPop() {
 
   this.drawInfo = function(country, population){
     //draw population info of country mouse is over
+    //reference: https://stackoverflow.com/questions/2901102/how-to-format-a-number-with-commas-as-thousands-separators
+    //turns population into string then adds commas to separates by the thousands
+    let comPop = population.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     push();
       fill(0)
       textSize(24);
       textAlign(CENTER, CENTER);
-      text(country + ' has a population of ' + population, width/2, height - 50);
+      text(country + ' has a population of ' + comPop, width/2, height - 50);
     pop();
   }
 

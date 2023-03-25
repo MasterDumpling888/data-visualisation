@@ -70,6 +70,12 @@ function BarChart() {
     
     //Set position of checkbox
     this.gridButton.position(width, height/4.5);
+
+    //create slider for frameRate
+    this.slider = createSlider(1, 10, 5);
+
+    //set position of slider
+    this.slider.position(width/2, height/4.5);
     
     //call parse data when graph is accessed by user
     this.parseData();
@@ -87,7 +93,7 @@ function BarChart() {
     //set controlled frame count
     this.frameCount = 0;
     //set frame rate
-    this.frameRate = 15;
+    this.frameRate;
   };
 
   this.destroy = function () {
@@ -95,8 +101,9 @@ function BarChart() {
     //so dataArray won't keep growing
     colorScale = {}; //reset colorScale array object when graph is access more than once
 
-    //remove DOM element
+    //remove DOM elements
     this.gridButton.remove();
+    this.slider.remove();
   };
 
   this.draw = function () {
@@ -113,6 +120,15 @@ function BarChart() {
     } else {
       this.layout.grid = false;
     }
+
+    //set bar race speed to slider's value
+    this.frameRate = this.slider.value();
+    //add text instruction
+    push();
+      fill(0)
+      textSize(10);
+      text('<-- Increase the delay on the bar race!', this.layout.leftMargin + 275, this.layout.topMargin - 15);
+    pop();
 
     let barHeight = this.layout.plotHeight() / this.layout.numBrands; //set the thickness of each bar
 
